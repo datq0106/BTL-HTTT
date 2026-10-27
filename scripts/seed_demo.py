@@ -35,12 +35,16 @@ KHACH = [
     ("Trần Thị Bình", "001203002222", "0905333444", "binh.tran@example.com", "nu"),
     ("Lê Minh Châu", "001203003333", "0905555666", "chau.le@example.com", "nam"),
     ("Phạm Thu Dung", "001203004444", "0905777888", "dung.pham@example.com", "nu"),
+    ("Đỗ Quang Huy", "001203005555", "0905999000", "huy.do@example.com", "nam"),
 ]
-# (khách, phòng, số ngày đã thuê, số ngày còn lại, dịch vụ cố định)
+# (khách, phòng, số ngày đã thuê, số ngày còn lại, dịch vụ cố định). RIVER-604 và STUDIO-310 là
+# phòng của tin công khai: có hợp đồng thì website tự hiện "Đang thuê" và ngừng nhận lịch xem.
 HOP_DONG = [
     (0, "P101", 120, 245, ["Internet", "Vệ sinh & rác"]),
     (1, "P201", 60, 20, ["Internet", "Gửi xe máy"]),  # sắp hết hạn, hiện cảnh báo trên dashboard
     (2, "P301", 200, 165, ["Internet", "Vệ sinh & rác", "Gửi xe máy"]),
+    (3, "RIVER-604", 90, 275, ["Internet"]),
+    (4, "STUDIO-310", 45, 320, ["Internet", "Gửi xe máy"]),
 ]
 TAI_KHOAN = [("quanly", "Quản lý Demo", "ROLE_QUAN_LY", None),
              ("cudan1", "Nguyễn Văn An", "ROLE_KHACH", 0),
@@ -95,13 +99,18 @@ def seed_van_hanh(admin):
             "ngaySinh": "1998-05-20", "queQuan": "Đà Nẵng", "trangThaiTamTru": "da_khai_bao",
             "ngayKhaiBao": (date.today() - timedelta(days=30)).isoformat(),
         }, status=201)["id"])
+    return dv, khach
 
+
+def seed_hop_dong(admin, dv, khach, data):
+    gia_tin = {t["ma"]: t["gia"] for t in data["LISTINGS"]}
+    phong = {p["maPhong"]: p["id"] for p in admin.expect("/api/phong?kichThuoc=100")["noiDung"]}
     dang_thue = {h["phongId"] for h in admin.expect("/api/hop-dong?trangThai=hieu_luc&kichThuoc=100")["noiDung"]}
     for k, ma, da_thue, con_lai, dich_vu in HOP_DONG:
         if phong[ma] in dang_thue:
             continue
         admin.expect("/api/hop-dong", "POST", {
-            "phongId": phong[ma], "khachThueId": khach[k],
+            "phongId": phong[ma], "khachThueId": khach[k], "giaThue": gia_tin.get(ma),
             "ngayBatDau": (date.today() - timedelta(days=da_thue)).isoformat(),
             "ngayKetThuc": (date.today() + timedelta(days=con_lai)).isoformat(),
             "tienCoc": 10000000, "dichVu": [{"dichVuId": dv[t], "soLuong": 1} for t in dich_vu],
@@ -146,14 +155,44 @@ def seed_tin_dang(admin, data):
         admin.expect(f"/api/tin-dang/{tin['dbId']}/xuat-ban", "POST")
 
 
+def seed_phong_cho_tin(admin, data):
+    """Mỗi tin công khai gắn một phòng vận hành cùng mã; trạng thái căn trên website lấy theo phòng."""
+    loai = {l["tenLoai"]: l["id"] for l in admin.expect("/api/phong/loai")}
+    phong = {p["maPhong"]: p for p in admin.expect("/api/phong?kichThuoc=100")["noiDung"]}
+    for t in data["LISTINGS"]:
+        if t["loai"] not in loai:
+            loai[t["loai"]] = admin.expect("/api/phong/loai", "POST", {
+                "tenLoai": t["loai"], "giaThue": t["gia"], "dienTich": t["dienTich"], "moTa": f"Theo tin {t['ma']}",
+            }, status=201)["id"]
+        if t["ma"] not in phong:
+            phong[t["ma"]] = admin.expect("/api/phong", "POST", {
+                "maPhong": t["ma"], "tang": min(t["tang"], 50), "loaiPhongId": loai[t["loai"]],
+                "tienNghi": ", ".join(t.get("tienNghi", []))[:500], "ghiChu": f"Căn công khai {t['tieuDe']}",
+            }, status=201)
+        p = phong[t["ma"]]
+        tin = admin.expect(f"/api/tin-dang?q={t['ma']}")["noiDung"][0]
+        if tin["phongId"] is None:
+            if tin["trangThaiTin"] == "xuat_ban":
+                admin.expect(f"/api/tin-dang/{tin['dbId']}/an", "POST")
+            admin.expect(f"/api/tin-dang/{tin['dbId']}", "PUT", {
+                "slug": tin["id"], "batDongSanId": tin["batDongSanId"], "phongId": p["id"], "ma": tin["ma"],
+                "tieuDe": tin["tieuDe"], "loai": tin["loai"], "phongNgu": tin["phongNgu"], "phongTam": tin["phongTam"],
+                "dienTich": tin["dienTich"], "tang": tin["tang"], "gia": tin["gia"], "datCoc": tin["datCoc"],
+                "tienNghi": "\n".join(tin["tienNghi"]), "moTa": tin["moTa"], "noiBat": tin["noiBat"], "trangThaiCan": "trong",
+            })
+            admin.expect(f"/api/tin-dang/{tin['dbId']}/xuat-ban", "POST")
+        if t.get("trangThai") in ("da_dat_coc", "bao_tri") and p["trangThai"] == "trong":
+            admin.expect(f"/api/phong/{p['id']}/trang-thai", "PATCH", {"trangThai": t["trangThai"]})
+
+
 def seed_hoa_don(admin):
-    """Kỳ trước đã thu, kỳ này chưa thu, cho mỗi hợp đồng đang hiệu lực."""
-    if admin.expect("/api/hoa-don?kichThuoc=1")["tongSoBanGhi"]:
-        return
+    """Kỳ trước đã thu, kỳ này chưa thu, cho mỗi hợp đồng đang hiệu lực chưa có hóa đơn."""
     dau_thang = date.today().replace(day=1)
     ky_nay, ky_truoc = dau_thang.strftime("%Y-%m"), (dau_thang - timedelta(days=1)).strftime("%Y-%m")
     for i, h in enumerate(admin.expect("/api/hop-dong?trangThai=hieu_luc&kichThuoc=100")["noiDung"]):
         chi_so = {"Điện": 1000 + 300 * i, "Nước": 50 + 10 * i}
+        if not admin.expect(f"/api/hoa-don/goi-y?hopDongId={h['id']}&ky={ky_nay}")["kyDau"]:
+            continue
         for ky, tieu_thu in ((ky_truoc, {"Điện": 110 + 10 * i, "Nước": 5}), (ky_nay, {"Điện": 125 + 10 * i, "Nước": 6})):
             goi_y = admin.expect(f"/api/hoa-don/goi-y?hopDongId={h['id']}&ky={ky}")
             dong = [d for d in goi_y["dong"] if d["theoChiSo"]]
@@ -194,8 +233,10 @@ def main():
     admin = Session()
     admin.login("admin", SETTINGS["APP_ADMIN_PASSWORD"])
     data = doc_listings()
-    seed_van_hanh(admin)
+    dv, khach = seed_van_hanh(admin)
     seed_tin_dang(admin, data)
+    seed_phong_cho_tin(admin, data)
+    seed_hop_dong(admin, dv, khach, data)
     seed_hoa_don(admin)
     seed_yeu_cau(admin, data)
     print(f"OK: dữ liệu demo sẵn sàng tại http://localhost:{SETTINGS.get('APP_PORT', '8088')}")
