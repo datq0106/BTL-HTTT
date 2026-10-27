@@ -21,11 +21,13 @@ class Session:
         self.cookies = http.cookiejar.CookieJar()
         self.client = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(self.cookies))
 
-    def call(self, path, method="GET", body=None, *, csrf=True):
+    def call(self, path, method="GET", body=None, *, csrf=True, content_type=None):
         headers = {"Accept": "application/json"}
         if isinstance(body, dict):
             body = json.dumps(body).encode()
             headers["Content-Type"] = "application/json"
+        if content_type:
+            headers["Content-Type"] = content_type
         token = next((c.value for c in self.cookies if c.name == "XSRF-TOKEN"), None)
         if csrf and token and method != "GET":
             headers["X-XSRF-TOKEN"] = token
@@ -36,10 +38,12 @@ class Session:
         except urllib.error.HTTPError as error:
             return error.code, error.read()
 
-    def expect(self, path, method="GET", body=None, *, status=200, csrf=True):
-        code, payload = self.call(path, method, body, csrf=csrf)
+    def expect(self, path, method="GET", body=None, *, status=200, csrf=True, content_type=None, raw=False):
+        code, payload = self.call(path, method, body, csrf=csrf, content_type=content_type)
         if code != status:
             raise AssertionError(f"{method} {path}: expected {status}, got {code}: {payload[:200]!r}")
+        if raw:
+            return payload
         return json.loads(payload) if payload else None
 
     def login(self, username, password):
