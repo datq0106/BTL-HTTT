@@ -14,7 +14,7 @@ import sys
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
-from security_smoke import ROOT, SETTINGS, Session
+from security_smoke import BASE, ROOT, SETTINGS, Session
 
 DEMO_PASSWORD = "Demo@2026"
 DICH_VU = [
@@ -259,7 +259,7 @@ def main():
     seed_hop_dong(admin, dv, khach, data)
     seed_hoa_don(admin)
     seed_yeu_cau(admin, data)
-    print(f"OK: dữ liệu demo sẵn sàng tại http://localhost:{SETTINGS.get('APP_PORT', '8088')}")
+    print(f"OK: dữ liệu demo sẵn sàng tại {BASE}")
     print(f"  admin / (APP_ADMIN_PASSWORD trong .env)")
     print(f"  quanly, cudan1, cudan2 / {DEMO_PASSWORD}")
 

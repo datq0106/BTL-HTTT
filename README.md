@@ -12,6 +12,8 @@
 
 ## Chạy cả hệ thống bằng Docker
 
+Triển khai lên server (HTTP theo IP hoặc HTTPS có tên miền, sao lưu, cập nhật): xem [docs/trien-khai-server.md](docs/trien-khai-server.md).
+
 Yêu cầu Docker Compose. Tạo `.env` từ `.env.example` và đặt ba mật khẩu riêng đủ mạnh (`MYSQL_PASSWORD`, `MYSQL_ROOT_PASSWORD`, `APP_ADMIN_PASSWORD`), sau đó:
 
 ```bash
@@ -19,7 +21,7 @@ docker compose up -d --build
 docker compose ps
 ```
 
-Website và trang quản trị dùng chung `http://localhost:8088` (hoặc `APP_PORT` trong `.env`). Đăng nhập quản trị ở `/dang-nhap` bằng tài khoản `admin` và `APP_ADMIN_PASSWORD` đã đặt. Sau lần tạo đầu, đổi mật khẩu trên giao diện. Backend chỉ nhận kết nối nội bộ từ Nginx, API đi qua `/api`; route sâu của SPA được trả về `index.html`. Kiểm tra `docker compose ps` để thấy cả `db`, `backend`, `frontend` healthy.
+Website và trang quản trị dùng chung `http://localhost` (cổng `APP_PORT` trong `.env`, mặc định 80). Đăng nhập quản trị ở `/dang-nhap` bằng tài khoản `admin` và `APP_ADMIN_PASSWORD` đã đặt. Sau lần tạo đầu, đổi mật khẩu trên giao diện. Backend chỉ nhận kết nối nội bộ từ Nginx, API đi qua `/api`; route sâu của SPA được trả về `index.html`. Kiểm tra `docker compose ps` để thấy cả `db`, `backend`, `frontend` healthy.
 
 MySQL lưu ở volume `mysql_data`; tài liệu tải lên lưu ở volume `uploads`. `docker compose down` giữ dữ liệu, còn `docker compose down -v` xóa cả hai volume. Không dùng lệnh sau cho dữ liệu cần giữ.
 

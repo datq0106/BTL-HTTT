@@ -7,12 +7,8 @@ import secrets
 import urllib.error
 import urllib.parse
 import urllib.request
-from pathlib import Path
 
-
-SETTINGS = dict(line.split("=", 1) for line in Path(__file__).resolve().parents[1].joinpath(".env")
-                .read_text(encoding="ascii").splitlines() if "=" in line)
-BASE = "http://localhost:" + SETTINGS.get("APP_PORT", "8088")
+from security_smoke import BASE, SETTINGS
 COOKIES = http.cookiejar.CookieJar()
 CLIENT = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(COOKIES))
 PNG = base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScL5WQAAAABJRU5ErkJggg==")

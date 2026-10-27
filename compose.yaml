@@ -1,7 +1,20 @@
+# Chạy: docker compose up -d --build
+# HTTPS có tên miền: đặt DOMAIN trong .env rồi docker compose --profile https up -d --build
+# Xem docs/trien-khai-server.md.
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   db:
     image: mysql:8.4
-    command: ["--log-bin-trust-function-creators=1"]
+    command:
+      - --log-bin-trust-function-creators=1
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: quan_ly_nha_tro
@@ -17,6 +30,8 @@ services:
       timeout: 5s
       retries: 15
       start_period: 30s
+    mem_limit: ${DB_MEM_LIMIT:-1g}
+    logging: *logging
     networks: [app]
 
   backend:
@@ -39,14 +54,16 @@ services:
       interval: 10s
       timeout: 5s
       retries: 15
-      start_period: 40s
+      start_period: 60s
+    mem_limit: ${BACKEND_MEM_LIMIT:-768m}
+    logging: *logging
     networks: [app]
 
   frontend:
     build: ./frontend
     restart: unless-stopped
     ports:
-      - "${APP_PORT:-8088}:80"
+      - "${APP_BIND:-0.0.0.0}:${APP_PORT:-80}:80"
     depends_on:
       backend:
         condition: service_healthy
@@ -55,11 +72,35 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    logging: *logging
+    networks: [app]
+
+  # Tùy chọn: HTTPS tự động (Let's Encrypt) khi có tên miền trỏ về server.
+  caddy:
+    image: caddy:2.8.4-alpine
+    profiles: [https]
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN:-}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      frontend:
+        condition: service_healthy
+    logging: *logging
     networks: [app]
 
 volumes:
   mysql_data:
   uploads:
+  caddy_data:
+  caddy_config:
 
 networks:
   app:

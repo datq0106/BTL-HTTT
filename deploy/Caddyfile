@@ -1,0 +1,6 @@
+# Dùng với: docker compose --profile https up -d
+# DOMAIN lấy từ .env; tên miền phải trỏ (bản ghi A) về IP server, mở cổng 80 và 443.
+{$DOMAIN} {
+	encode gzip
+	reverse_proxy frontend:80
+}

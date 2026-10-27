@@ -2,6 +2,7 @@
 
 import http.cookiejar
 import json
+import os
 import secrets
 import subprocess
 import urllib.error
@@ -11,9 +12,24 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SETTINGS = dict(line.split("=", 1) for line in (ROOT / ".env").read_text(encoding="ascii")
-                .splitlines() if "=" in line)
-BASE = "http://localhost:" + SETTINGS.get("APP_PORT", "8088")
+
+
+def doc_env(path):
+    """Đọc .env (bỏ dòng chú thích); biến môi trường cùng tên được ưu tiên."""
+    values = {}
+    if path.exists():
+        for line in path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                key, value = line.split("=", 1)
+                values[key.strip()] = value.strip()
+    values.update({k: v for k, v in os.environ.items() if k in ("APP_URL", "APP_PORT", "APP_ADMIN_PASSWORD")})
+    return values
+
+
+SETTINGS = doc_env(ROOT / ".env")
+# APP_URL cho phép chạy script từ máy khác, ví dụ APP_URL=https://ten-mien.vn
+BASE = SETTINGS.get("APP_URL") or "http://localhost:" + SETTINGS.get("APP_PORT", "80")
 
 
 class Session:
