@@ -30,11 +30,11 @@ export default function HomePage() {
   return (
     <>
       <section className="hero-re">
-        <img className="hero-re__bg" alt="" src="/properties/hero.jpg" />
+        <img className="hero-re__bg" alt="" src="/properties/mat-tien-chung-cu.jpg" />
         <div className="hero-re__shade" />
         <div className="hero-re__ornament" aria-hidden="true" />
         <div className="hero-re__content">
-          <p className="page-kicker" style={{ color: 'var(--gold-2)' }}>TP. Hà Nội · Private leasing</p>
+          <p className="page-kicker" style={{ color: 'var(--gold-2)' }}>TP. Hồ Chí Minh · Private leasing</p>
           <h1>Tìm nơi ở đúng chuẩn quỹ bất động sản.</h1>
           <p>Black Panther tuyển chọn, vận hành và cho thuê căn hộ, loft, penthouse — hợp đồng minh bạch, bàn giao đúng mô tả.</p>
           <form className="hero-search" onSubmit={tim}>
@@ -145,7 +145,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="split-photo">
-            <img src="/properties/interior.jpg" alt="Nội thất căn hộ Black Panther" />
+            <img src="/properties/biet-thu-ho-boi.jpg" alt="Nội thất căn hộ Black Panther" />
           </div>
         </div>
       </section>

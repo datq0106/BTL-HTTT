@@ -9,7 +9,7 @@ export default function LivingGuidePage() {
         kicker="Living with us"
         title="Hướng dẫn ở sau khi ký."
         desc="Từ bàn giao đến thanh lý. Cư dân dùng cổng thành viên; khẩn cấp ngoài giờ gọi quản lý tòa."
-        anh="/properties/kitchen.jpg"
+        anh="/properties/nha-pho-mat-tien.jpg"
       />
       <div className="site-page">
         <ol className="process-rail">
@@ -36,7 +36,7 @@ export default function LivingGuidePage() {
             </div>
           </div>
           <div className="split-photo">
-            <img src="/properties/interior.jpg" alt="" />
+            <img src="/properties/phong-khach-mo.jpg" alt="" />
           </div>
         </div>
         <p className="muted" style={{ marginTop: 28 }}>Hotline {VAN_PHONG.dienThoai} · {VAN_PHONG.gio}</p>

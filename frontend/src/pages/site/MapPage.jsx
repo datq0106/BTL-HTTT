@@ -28,7 +28,7 @@ export default function MapPage() {
         kicker="Inventory map"
         title="Quỹ căn trên bản đồ bàn làm việc."
         desc="Năm địa bàn Black Panther. Pin vàng là căn đang vận hành — chọn để mở hồ sơ."
-        anh="/properties/hero.jpg"
+        anh="/properties/mat-tien-chung-cu.jpg"
         compact
       />
       <div className="site-page">

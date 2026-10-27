@@ -33,7 +33,7 @@ export default function CareersPage() {
         kicker="Careers"
         title="Làm việc như một leasing house, không phải sàn ca."
         desc="Ít người, quỹ nhỏ, trách nhiệm rõ. Black Panther tuyển người chịu được biên bản và khách khó tính."
-        anh="/properties/hero.jpg"
+        anh="/properties/mat-tien-chung-cu.jpg"
       />
       <div className="site-page">
         <div className="job-list">

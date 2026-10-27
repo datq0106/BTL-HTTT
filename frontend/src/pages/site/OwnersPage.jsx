@@ -44,7 +44,7 @@ export default function OwnersPage() {
         kicker="For owners"
         title="Đưa căn vào quỹ, không phải lên sàn rao."
         desc="Black Panther nhận độc quyền leasing tối thiểu 12 tháng. Ít căn, hồ sơ đủ, occupancy chịu trách nhiệm."
-        anh="/properties/hero.jpg"
+        anh="/properties/mat-tien-chung-cu.jpg"
       />
       <div className="site-page">
         <div className="stat-row">

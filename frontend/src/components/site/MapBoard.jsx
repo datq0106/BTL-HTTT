@@ -4,7 +4,7 @@ export default function MapBoard({ items, activeId, onSelect }) {
   const { khuVuc: KHU_VUC } = useCatalog()
   return (
     <div className="map-board">
-      <div className="map-board__canvas" aria-label="Bản đồ quỹ căn Hà Nội">
+      <div className="map-board__canvas" aria-label="Bản đồ quỹ căn TP. Hồ Chí Minh">
         <span className="map-board__river" />
         {KHU_VUC.filter((k) => k.pin).map((k) => (
           <em key={k.id} className="map-board__district" style={{ left: `${k.pin.x}%`, top: `${k.pin.y}%` }}>

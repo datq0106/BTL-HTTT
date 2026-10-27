@@ -13,7 +13,7 @@ export default function FaqPage() {
         kicker="FAQ"
         title="Hỏi desk trước khi xem nhà."
         desc="Thuê căn, gửi quỹ, cổng cư dân — trả lời ngắn, đúng ngôn ngữ Black Panther."
-        anh="/properties/interior.jpg"
+        anh="/properties/phong-khach-mo.jpg"
         compact
       />
       <div className="site-page">

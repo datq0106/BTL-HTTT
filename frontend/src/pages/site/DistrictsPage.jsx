@@ -11,7 +11,7 @@ export default function DistrictsPage() {
         kicker="Districts"
         title="Khu vực desk am hiểu thật sự."
         desc="Năm địa bàn Black Panther nhận quỹ. Mỗi khu có khách điển hình, dải giá và căn đang vận hành."
-        anh="/properties/04.jpg"
+        anh="/properties/biet-thu-san-vuon.jpg"
       />
       <div className="site-page">
         {error && <p role="alert">{error}</p>}

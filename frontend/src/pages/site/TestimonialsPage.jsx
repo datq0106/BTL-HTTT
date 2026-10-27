@@ -9,7 +9,7 @@ export default function TestimonialsPage() {
         kicker="House voices"
         title="Lời từ người đã ký hợp đồng."
         desc="Cư dân và chủ nhà trên quỹ Black Panther — không phải review sàn rao."
-        anh="/properties/living.jpg"
+        anh="/properties/nha-pho-mat-tien.jpg"
         compact
       />
       <div className="site-page">

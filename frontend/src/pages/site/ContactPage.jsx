@@ -34,7 +34,7 @@ export default function ContactPage() {
         kicker="Leasing desk"
         title="Gặp chúng tôi tại Nguyễn Huệ."
         desc="Xem nhà, gửi căn vào quỹ, hoặc hỏi hợp đồng đang hiệu lực. Advisor xác nhận trong giờ hành chính."
-        anh="/properties/office.jpg"
+        anh="/properties/van-phong.jpg"
         compact
       />
       <div className="site-page">

@@ -8,8 +8,8 @@ export default function PressPage() {
       <SiteBanner
         kicker="Press room"
         title="Được trích dẫn, không phải tự khen."
-        desc="Black Panther xuất hiện khi các desk nghiên cứu nói về thuê dịch vụ Hà Nội — không phải advertorial."
-        anh="/properties/04.jpg"
+        desc="Black Panther xuất hiện khi các desk nghiên cứu nói về thuê dịch vụ TP.HCM — không phải advertorial."
+        anh="/properties/biet-thu-san-vuon.jpg"
         compact
       />
       <div className="site-page">

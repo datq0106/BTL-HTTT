@@ -3,7 +3,8 @@
 Creates services, room types, rooms, tenants, demo accounts, contracts, two months of
 invoices, the public areas/listings from frontend/src/data/listings.js (with images)
 and a few requests.
-Safe to run again: existing records are kept and skipped.
+Safe to run again: existing records are kept and skipped. Pass --lam-moi-anh to replace
+the uploaded images of the sample listings after listings.js changes.
 """
 
 import json
@@ -155,6 +156,23 @@ def seed_tin_dang(admin, data):
         admin.expect(f"/api/tin-dang/{tin['dbId']}/xuat-ban", "POST")
 
 
+def lam_moi_anh(admin, data):
+    """Thay toàn bộ ảnh đã upload của tin mẫu bằng danh sách ảnh hiện tại trong listings.js."""
+    for t in data["LISTINGS"]:
+        found = admin.expect(f"/api/tin-dang?q={t['ma']}")["noiDung"]
+        if not found:
+            continue
+        tin = found[0]
+        if tin["trangThaiTin"] == "xuat_ban":
+            admin.expect(f"/api/tin-dang/{tin['dbId']}/an", "POST")
+        for anh in tin["chiTietAnh"]:
+            admin.expect(f"/api/tin-dang/{tin['dbId']}/anh/{anh['id']}", "DELETE")
+        for i, anh in enumerate(t.get("anh", [])):
+            upload(admin, f"/api/tin-dang/{tin['dbId']}/anh", ROOT / "frontend" / "public" / anh.lstrip("/"),
+                   f"{t['tieuDe']} - ảnh {i + 1}")
+        admin.expect(f"/api/tin-dang/{tin['dbId']}/xuat-ban", "POST")
+
+
 def seed_phong_cho_tin(admin, data):
     """Mỗi tin công khai gắn một phòng vận hành cùng mã; trạng thái căn trên website lấy theo phòng."""
     loai = {l["tenLoai"]: l["id"] for l in admin.expect("/api/phong/loai")}
@@ -235,6 +253,8 @@ def main():
     data = doc_listings()
     dv, khach = seed_van_hanh(admin)
     seed_tin_dang(admin, data)
+    if "--lam-moi-anh" in sys.argv:
+        lam_moi_anh(admin, data)
     seed_phong_cho_tin(admin, data)
     seed_hop_dong(admin, dv, khach, data)
     seed_hoa_don(admin)

@@ -55,7 +55,7 @@ export default function HopDongCuaToi() {
 
       {/* Hero Căn hộ */}
       <section className="portal-hero">
-        <img src="/properties/interior.jpg" alt="Không gian phòng" />
+        <img src="/properties/phong-khach-mo.jpg" alt="Không gian phòng" />
         <div>
           <p className="page-kicker" style={{ color: 'var(--gold-2)' }}>Phòng {hd.maPhong} · Đang hiệu lực</p>
           <h2>{tien(hd.giaThue)} <span>/ tháng</span></h2>

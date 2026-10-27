@@ -53,7 +53,7 @@ export default function CuDanDashboard() {
 
       {/* Hero căn phòng */}
       <section className="portal-hero">
-        <img src="/properties/living.jpg" alt="Phòng thuê" />
+        <img src="/properties/nha-pho-mat-tien.jpg" alt="Phòng thuê" />
         <div>
           <p className="page-kicker" style={{ color: 'var(--gold-2)' }}>Black Panther · Resident Living</p>
           {hd ? (

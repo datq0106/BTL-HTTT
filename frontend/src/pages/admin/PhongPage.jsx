@@ -10,12 +10,12 @@ import { Icon } from '../../components/icons'
 const TRONG_FORM = { maPhong: '', tang: 1, loaiPhongId: '', tienNghi: '', ghiChu: '' }
 
 const ANH_PHONG = [
-  '/properties/01.jpg',
-  '/properties/02.jpg',
-  '/properties/living.jpg',
-  '/properties/kitchen.jpg',
-  '/properties/interior.jpg',
-  '/properties/07.jpg',
+  '/properties/biet-thu-ho-boi.jpg',
+  '/properties/phong-khach-mo.jpg',
+  '/properties/nha-pho-mat-tien.jpg',
+  '/properties/nha-pho-mat-tien.jpg',
+  '/properties/phong-khach-mo.jpg',
+  '/properties/mat-tien-chung-cu.jpg',
 ]
 
 function anhPhong(id) {

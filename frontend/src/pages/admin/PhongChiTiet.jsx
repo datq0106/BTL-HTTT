@@ -7,12 +7,12 @@ import { Badge, PageHead } from '../../components/ui'
 import { useToast } from '../../context/ToastContext'
 
 const ANH = [
-  '/properties/01.jpg',
-  '/properties/02.jpg',
-  '/properties/living.jpg',
-  '/properties/kitchen.jpg',
-  '/properties/interior.jpg',
-  '/properties/07.jpg',
+  '/properties/biet-thu-ho-boi.jpg',
+  '/properties/phong-khach-mo.jpg',
+  '/properties/nha-pho-mat-tien.jpg',
+  '/properties/nha-pho-mat-tien.jpg',
+  '/properties/phong-khach-mo.jpg',
+  '/properties/mat-tien-chung-cu.jpg',
 ]
 
 export default function PhongChiTiet() {

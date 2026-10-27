@@ -34,7 +34,7 @@ export default function CareerDetailPage() {
 
   return (
     <>
-      <SiteBanner kicker={`${job.nhom} · ${job.loai}`} title={job.viTri} desc={job.diaDiem} anh="/properties/office.jpg" compact />
+      <SiteBanner kicker={`${job.nhom} · ${job.loai}`} title={job.viTri} desc={job.diaDiem} anh="/properties/van-phong.jpg" compact />
       <div className="site-page">
         <p className="crumb">
           <Link to="/">Trang chủ</Link> / <Link to="/tuyen-dung">Tuyển dụng</Link> / {job.viTri}

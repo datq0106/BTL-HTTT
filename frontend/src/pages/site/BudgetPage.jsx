@@ -25,7 +25,7 @@ export default function BudgetPage() {
         kicker="Budget desk"
         title="Ngân sách thuê, nói bằng số."
         desc="Desk gợi ý căn dưới tỷ lệ thu nhập bạn chọn. Đây là công cụ nội bộ — không phải cam kết định giá."
-        anh="/properties/office.jpg"
+        anh="/properties/van-phong.jpg"
         compact
       />
       <div className="site-page">

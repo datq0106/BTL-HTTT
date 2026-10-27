@@ -9,7 +9,7 @@ export default function ServicesPage() {
         kicker="Practice"
         title="Bốn việc một nhà leasing thực sự làm."
         desc="Không phải sàn rao. Black Panther ghép khách, chuẩn hóa căn, vận hành cư dân và định giá — cùng một desk."
-        anh="/properties/office.jpg"
+        anh="/properties/van-phong.jpg"
       />
       <div className="site-page">
         {DICH_VU.map((d, i) => (

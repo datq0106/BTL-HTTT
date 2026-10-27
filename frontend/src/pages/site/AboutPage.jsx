@@ -23,7 +23,7 @@ export default function AboutPage() {
         kicker="The house"
         title="Một bàn leasing, không phải sàn rao vặt."
         desc="Black Panther làm việc như văn phòng quản lý tài sản: ít căn, hồ sơ đầy đủ, hợp đồng chặt, bàn giao có biên bản."
-        anh="/properties/office.jpg"
+        anh="/properties/van-phong.jpg"
       />
       <div className="site-page">
         <div className="stat-row">
@@ -36,7 +36,7 @@ export default function AboutPage() {
         </div>
         <div className="split" style={{ margin: '48px 0' }}>
           <div className="split-photo">
-            <img src="/properties/interior.jpg" alt="Văn phòng Black Panther" />
+            <img src="/properties/phong-khach-mo.jpg" alt="Văn phòng Black Panther" />
           </div>
           <div>
             <p className="page-kicker">Since desk</p>

@@ -9,7 +9,7 @@ export default function ProcessPage() {
         kicker="How we lease"
         title="Năm bước, một officer, không vòng vo."
         desc="Từ lọc nhu cầu đến gia hạn. Black Panther không đưa bạn vào nhóm xem nhà đông hay inbox môi giới."
-        anh="/properties/06.jpg"
+        anh="/properties/studio-bep-nho.jpg"
       />
       <div className="site-page">
         <ol className="process-rail">
@@ -37,7 +37,7 @@ export default function ProcessPage() {
             </div>
           </div>
           <div className="split-photo">
-            <img src="/properties/living.jpg" alt="" />
+            <img src="/properties/nha-pho-mat-tien.jpg" alt="" />
           </div>
         </div>
         <p className="muted" style={{ marginTop: 28 }}>Hotline {VAN_PHONG.dienThoai} · {VAN_PHONG.gio}</p>

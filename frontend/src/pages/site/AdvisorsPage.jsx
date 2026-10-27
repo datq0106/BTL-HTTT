@@ -9,7 +9,7 @@ export default function AdvisorsPage() {
         kicker="The desk"
         title="Advisor phụ trách quỹ, không phải sale ca."
         desc="Mỗi người một địa bàn. Họ dẫn xem, soạn hợp đồng và theo gia hạn — cùng một giọng Black Panther."
-        anh="/properties/office.jpg"
+        anh="/properties/van-phong.jpg"
       />
       <div className="site-page">
         <div className="advisor-stack">

@@ -63,7 +63,7 @@ export default function ListingsPage() {
         kicker="Inventory"
         title="Quỹ căn đang vận hành"
         desc="Giá đã gồm phí quản lý tòa nhà, chưa gồm điện nước. Mỗi căn có hồ sơ đo đạc và hợp đồng chuẩn Black Panther."
-        anh="/properties/living.jpg"
+        anh="/properties/nha-pho-mat-tien.jpg"
         compact
       />
       <div className="site-page">

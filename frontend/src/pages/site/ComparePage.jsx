@@ -28,7 +28,7 @@ export default function ComparePage() {
         kicker="Side by side"
         title="So sánh tối đa ba căn."
         desc="Cùng một desk, cùng cách đo. Chọn từ danh sách quan tâm — không phải bảng rao lẫn lộn."
-        anh="/properties/interior.jpg"
+        anh="/properties/phong-khach-mo.jpg"
         compact
       />
       <div className="site-page">

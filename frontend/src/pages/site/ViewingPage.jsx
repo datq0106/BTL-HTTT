@@ -44,7 +44,7 @@ export default function ViewingPage() {
         kicker="Private viewing"
         title="Đặt lịch xem nhà trong 24 giờ."
         desc={`Desk xác nhận trong ${VAN_PHONG.gio}. Penthouse chỉ mở lịch riêng.`}
-        anh="/properties/06.jpg"
+        anh="/properties/studio-bep-nho.jpg"
         compact
       />
       <div className="site-page">

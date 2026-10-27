@@ -9,7 +9,7 @@ export default function InsightsPage() {
         kicker="Research desk"
         title="Ghi chép thị trường thuê."
         desc="Không phải tin rao. Đây là brief nội bộ Black Panther gửi khách và chủ nhà — ngắn, có địa bàn, có hàm ý định giá."
-        anh="/properties/office.jpg"
+        anh="/properties/van-phong.jpg"
       />
       <div className="site-page">
         <div className="insight-grid">

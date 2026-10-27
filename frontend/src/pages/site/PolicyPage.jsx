@@ -9,7 +9,7 @@ export default function PolicyPage() {
         kicker="House policy"
         title="Điều khoản niêm yết & dữ liệu."
         desc="Ngắn, đọc được. Black Panther không bán danh sách enquire và không đăng ồ ạt."
-        anh="/properties/office.jpg"
+        anh="/properties/van-phong.jpg"
         compact
       />
       <div className="site-page">

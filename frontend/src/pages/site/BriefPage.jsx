@@ -37,7 +37,7 @@ export default function BriefPage() {
         kicker="Private brief"
         title="Để desk lọc căn trước khi bạn xem."
         desc="Không inbox môi giới. Một officer đọc nhu cầu, chỉ mở lịch với căn khớp."
-        anh="/properties/office.jpg"
+        anh="/properties/van-phong.jpg"
         compact
       />
       <div className="site-page">

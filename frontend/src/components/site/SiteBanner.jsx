@@ -1,4 +1,4 @@
-export default function SiteBanner({ kicker, title, desc, anh = '/properties/hero.jpg', compact }) {
+export default function SiteBanner({ kicker, title, desc, anh = '/properties/mat-tien-chung-cu.jpg', compact }) {
   return (
     <section className={`page-banner ${compact ? 'page-banner--compact' : ''}`}>
       <img className="page-banner__bg" src={anh} alt="" />

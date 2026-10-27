@@ -131,7 +131,7 @@ export default function HopDongChiTiet() {
 
       {/* Hero tóm tắt nhanh hợp đồng */}
       <section className="portal-hero" style={{ marginBottom: 22 }}>
-        <img src="/properties/interior.jpg" alt="" />
+        <img src="/properties/phong-khach-mo.jpg" alt="" />
         <div>
           <p className="page-kicker" style={{ color: 'var(--gold-2)' }}>Căn hộ {hd.maPhong} · Black Panther</p>
           <h2>{tien(hd.giaThue)} <span>/ tháng</span></h2>

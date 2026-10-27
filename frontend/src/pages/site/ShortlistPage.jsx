@@ -12,7 +12,7 @@ export default function ShortlistPage() {
         kicker="Private shortlist"
         title="Căn bạn đang cân nhắc."
         desc="Lưu trên trình duyệt này. Desk không thấy danh sách cho đến khi bạn gửi yêu cầu xem nhà."
-        anh="/properties/living.jpg"
+        anh="/properties/nha-pho-mat-tien.jpg"
         compact
       />
       <div className="site-page">
