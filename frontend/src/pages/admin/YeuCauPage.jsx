@@ -117,7 +117,7 @@ export default function YeuCauPage() {
           <option value="">Tất cả</option><option value="khach_ngoai">Khách ngoài</option><option value="cu_dan">Cư dân</option><option value="noi_bo">Nội bộ</option>
         </select></div>
         <div className="field"><label>Chủ đề</label><select value={filter.chuDe} onChange={(e) => setFilter({ ...filter, chuDe: e.target.value })}>
-          <option value="">Tất cả</option>{['lien-he', 'brief', 'chu-nha', 'quan-tam', 'xem-phong', 'bao-tri', 'gia-han', 'tam-tru', 'nguoi-o-cung', 'khac'].map((x) => <option key={x} value={x}>{x}</option>)}
+          <option value="">Tất cả</option>{['lien-he', 'brief', 'chu-nha', 'quan-tam', 'xem-phong', 'ung-tuyen', 'bao-tri', 'gia-han', 'tam-tru', 'nguoi-o-cung', 'khac'].map((x) => <option key={x} value={x}>{x}</option>)}
         </select></div>
         <div className="field"><label>Trạng thái</label><select value={filter.trangThai} onChange={(e) => setFilter({ ...filter, trangThai: e.target.value })}>
           <option value="">Tất cả</option>{Object.entries(LABEL).map(([key, label]) => <option key={key} value={key}>{label}</option>)}

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { PhongApi } from '../../api/services'
+import { PhongApi, TinDangApi } from '../../api/services'
 import { thongBaoLoi } from '../../api/client'
-import { tien } from '../../utils/format'
+import { nhan, tien } from '../../utils/format'
 import { Badge, PageHead } from '../../components/ui'
 import { useToast } from '../../context/ToastContext'
 
@@ -19,9 +19,12 @@ export default function PhongChiTiet() {
   const { id } = useParams()
   const toast = useToast()
   const [p, setP] = useState(null)
+  const [tin, setTin] = useState(undefined)
 
   useEffect(() => {
     PhongApi.chiTiet(id).then((r) => setP(r.data)).catch((e) => toast.loi(thongBaoLoi(e)))
+    TinDangApi.danhSach({ phongId: id, kichThuoc: 1 })
+      .then((r) => setTin(r.data.noiDung?.[0] || null)).catch(() => setTin(null))
   }, [id, toast])
 
   if (!p) return <div className="empty">Đang mở hồ sơ phòng…</div>
@@ -56,6 +59,25 @@ export default function PhongChiTiet() {
             <Link to={`/quan-ly/hop-dong/${p.hopDongId}`} className="btn btn--gold btn--sm">Mở hợp đồng</Link>
           ) : (
             <Link to="/quan-ly/hop-dong" className="btn btn--ghost btn--sm">Sổ leasing</Link>
+          )}
+          <p className="page-kicker" style={{ marginTop: 28 }}>Website</p>
+          {tin === undefined ? <p className="muted">Đang kiểm tra tin đăng…</p> : tin ? (
+            <>
+              <h3>{tin.ma} <Badge nhom="tinDang" ma={tin.trangThaiTin} /></h3>
+              <p className="muted">Website hiển thị trạng thái “{nhan('phong', tin.trangThai)}” theo phòng này
+                {tin.nhanLich ? ' và đang nhận lịch xem.' : '; căn không nhận lịch xem.'}</p>
+              <div className="row-actions">
+                <Link to={`/quan-ly/tin-dang?q=${encodeURIComponent(tin.ma)}`} className="btn btn--ghost btn--sm">Quản lý tin</Link>
+                {tin.trangThaiTin === 'xuat_ban' && (
+                  <a href={`/bat-dong-san/${tin.id}`} target="_blank" rel="noreferrer" className="btn btn--ghost btn--sm">Xem trên website</a>
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="muted">Phòng chưa được đăng lên website.</p>
+              <Link to={`/quan-ly/tin-dang?phong=${p.id}`} className="btn btn--gold btn--sm">Đăng tin</Link>
+            </>
           )}
         </aside>
       </div>

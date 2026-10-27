@@ -1,16 +1,22 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Icon } from '../../components/icons'
 import PropertyCard from '../../components/site/PropertyCard'
 import { BAO_CHI, DICH_VU, LOI_KHACH, TIN_THI_TRUONG, VAN_PHONG } from '../../data/listings'
 import { useCatalog } from '../../context/CatalogContext'
 import { tien } from '../../utils/format'
+import { PublicTinDangApi } from '../../api/services'
 
 export default function HomePage() {
   const navigate = useNavigate()
   const { khuVuc: KHU_VUC, listings: LISTINGS, loading, error } = useCatalog()
   const [FEATURE, ...CON_LAI] = LISTINGS.filter((x) => x.noiBat)
   const [form, setForm] = useState({ keyword: '', khuVuc: '', giaDen: '' })
+  const [thongKe, setThongKe] = useState(null)
+
+  useEffect(() => {
+    PublicTinDangApi.thongKe().then((r) => setThongKe(r.data)).catch(() => setThongKe(null))
+  }, [LISTINGS])
 
   function tim(e) {
     e.preventDefault()
@@ -63,8 +69,8 @@ export default function HomePage() {
           </form>
           <div className="hero-stats">
             <div><strong>{loading ? '…' : LISTINGS.length}</strong><span>Căn đang công bố</span></div>
-            <div><strong>12 năm</strong><span>Kinh nghiệm leasing</span></div>
-            <div><strong>98%</strong><span>Tỷ lệ gia hạn</span></div>
+            <div><strong>{thongKe ? thongKe.soCanTrong : '…'}</strong><span>Căn còn nhận lịch xem</span></div>
+            <div><strong>{thongKe ? `${thongKe.tyLeLapDay}%` : '…'}</strong><span>Tỷ lệ lấp đầy</span></div>
           </div>
         </div>
       </section>

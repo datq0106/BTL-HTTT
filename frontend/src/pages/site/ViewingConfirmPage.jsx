@@ -6,7 +6,7 @@ import { ngayGioVietNam } from '../../utils/format'
 
 const LOAI = {
   'lien-he': 'Liên hệ tư vấn', brief: 'Tìm căn theo nhu cầu',
-  'chu-nha': 'Chủ nhà gửi căn', 'quan-tam': 'Quan tâm căn', 'xem-phong': 'Xem căn',
+  'chu-nha': 'Chủ nhà gửi căn', 'quan-tam': 'Quan tâm căn', 'xem-phong': 'Xem căn', 'ung-tuyen': 'Hồ sơ ứng tuyển',
 }
 const TRANG_THAI = {
   cho_xu_ly: 'Đã tiếp nhận, chờ xử lý', dang_xu_ly: 'Đang xử lý',

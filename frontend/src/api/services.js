@@ -130,6 +130,7 @@ export const YeuCauApi = {
 
 export const PublicTinDangApi = {
   khuVuc: () => api.get('/public/khu-vuc'),
+  thongKe: () => api.get('/public/thong-ke'),
   chiTietKhu: (slug) => api.get(`/public/khu-vuc/${encodeURIComponent(slug)}`),
   danhSach: (params) => api.get('/public/tin-dang', { params }),
   chiTiet: (slug) => api.get(`/public/tin-dang/${encodeURIComponent(slug)}`),

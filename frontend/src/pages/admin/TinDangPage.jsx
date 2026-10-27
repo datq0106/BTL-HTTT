@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { BatDongSanApi, PhongApi, TinDangApi } from '../../api/services'
 import { thongBaoLoi } from '../../api/client'
 import { tien } from '../../utils/format'
@@ -19,15 +20,40 @@ function soHoacNull(v) {
   return v === '' || v == null ? null : Number(v)
 }
 
+function slug(text) {
+  return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/gi, 'd')
+    .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+}
+
+/** Điền các ô còn trống của form tin từ hồ sơ phòng vận hành. */
+function dienTuPhong(form, p) {
+  const trong = (v) => v === '' || v == null
+  return {
+    ...form,
+    phongId: p.id,
+    ma: trong(form.ma) ? p.maPhong : form.ma,
+    slug: trong(form.slug) ? slug(`phong-${p.maPhong}`) : form.slug,
+    tieuDe: trong(form.tieuDe) ? `${p.tenLoai} ${p.maPhong}` : form.tieuDe,
+    loai: trong(form.loai) ? p.tenLoai : form.loai,
+    tang: p.tang ?? form.tang,
+    dienTich: trong(form.dienTich) ? (p.dienTich ?? '') : form.dienTich,
+    gia: trong(form.gia) ? p.giaThue : form.gia,
+    datCoc: trong(form.datCoc) ? p.giaThue : form.datCoc,
+    tienNghi: trong(form.tienNghi) ? (p.tienNghi || '').split(',').map((x) => x.trim()).filter(Boolean).join('\n') : form.tienNghi,
+    moTa: trong(form.moTa) ? (p.ghiChu || `${p.tenLoai} tầng ${p.tang}.`) : form.moTa,
+  }
+}
+
 function baoCatalog() {
   window.dispatchEvent(new Event('catalog_updated'))
 }
 
 export default function TinDangPage() {
   const toast = useToast()
+  const [sp, setSp] = useSearchParams()
   const [tab, setTab] = useState('tin')
   const [ds, setDs] = useState({ noiDung: [], trang: 0, tongSoTrang: 0, tongSoBanGhi: 0 })
-  const [boLoc, setBoLoc] = useState({ q: '', trangThai: '', trang: 0 })
+  const [boLoc, setBoLoc] = useState(() => ({ q: sp.get('q') || '', trangThai: '', trang: 0 }))
   const [khuVuc, setKhuVuc] = useState([])
   const [batDongSan, setBatDongSan] = useState([])
   const [phong, setPhong] = useState([])
@@ -46,14 +72,21 @@ export default function TinDangPage() {
   }
 
   function taiDanhMuc() {
-    Promise.all([BatDongSanApi.khuVuc(), BatDongSanApi.danhSach()])
-      .then(([k, b]) => { setKhuVuc(k.data || []); setBatDongSan(b.data || []) })
-      .catch((e) => toast.loi(thongBaoLoi(e)))
+    return Promise.all([BatDongSanApi.khuVuc(), BatDongSanApi.danhSach()])
+      .then(([k, b]) => { setKhuVuc(k.data || []); setBatDongSan(b.data || []); return b.data || [] })
+      .catch((e) => { toast.loi(thongBaoLoi(e)); return [] })
   }
 
   useEffect(() => {
     tai(boLoc)
-    taiDanhMuc()
+    const phongId = sp.get('phong')
+    Promise.all([taiDanhMuc(), phongId ? PhongApi.chiTiet(phongId).then((r) => r.data) : null]).then(([bds, p]) => {
+      if (!p) return
+      setSp({}, { replace: true })
+      if (!bds.length) { toast.loi('Cần tạo khu vực và tòa nhà trước khi đăng tin'); setTab('danh-muc'); return }
+      setSuaId(null)
+      setForm(dienTuPhong({ ...TRONG_TIN, batDongSanId: bds[0].id }, p))
+    }).catch((e) => toast.loi(thongBaoLoi(e)))
     PhongApi.danhSach({ trang: 0, kichThuoc: 100 }).then((r) => setPhong(r.data.noiDung || [])).catch(() => setPhong([]))
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -306,7 +339,10 @@ export default function TinDangPage() {
                 </select>
               </Field>
               <Field label="Phòng vận hành liên kết">
-                <select value={form.phongId} onChange={(e) => setForm({ ...form, phongId: e.target.value })}>
+                <select value={form.phongId} onChange={(e) => {
+                  const p = phong.find((x) => String(x.id) === e.target.value)
+                  setForm(p && !suaId ? dienTuPhong(form, p) : { ...form, phongId: e.target.value })
+                }}>
                   <option value="">Không liên kết</option>
                   {phong.map((p) => <option key={p.id} value={p.id}>{p.maPhong} — {p.tenLoai}</option>)}
                 </select>

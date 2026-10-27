@@ -1,17 +1,30 @@
-﻿import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import SiteBanner from '../../components/site/SiteBanner'
 import { TUYEN_DUNG, VAN_PHONG } from '../../data/listings'
 import { useToast } from '../../context/ToastContext'
 import { useState } from 'react'
+import { PublicYeuCauApi } from '../../api/services'
+import { thongBaoLoi } from '../../api/client'
 
 export default function CareersPage() {
   const toast = useToast()
-  const [form, setForm] = useState({ ten: '', email: '', viTri: TUYEN_DUNG[0].id, ghiChu: '' })
+  const navigate = useNavigate()
+  const [sending, setSending] = useState(false)
+  const [form, setForm] = useState({ ten: '', sdt: '', email: '', viTri: TUYEN_DUNG[0].id, ghiChu: '' })
 
-  function gui(e) {
+  async function gui(e) {
     e.preventDefault()
-    toast.thanhCong('Đã nhận hồ sơ. People desk sẽ phản hồi nếu khớp bàn làm việc.')
-    setForm({ ten: '', email: '', viTri: TUYEN_DUNG[0].id, ghiChu: '' })
+    if (sending) return
+    setSending(true)
+    const job = TUYEN_DUNG.find((j) => j.id === form.viTri)
+    try {
+      const { data } = await PublicYeuCauApi.gui({
+        chuDe: 'ung-tuyen', tieuDe: `Ứng tuyển ${job.viTri}`,
+        hoTen: form.ten.trim(), sdt: form.sdt.trim(), email: form.email.trim(), noiDung: form.ghiChu.trim(),
+      })
+      navigate(`/dat-lich/xac-nhan?ma=${data.maTraCuu}`)
+    } catch (err) { toast.loi(thongBaoLoi(err)) }
+    finally { setSending(false) }
   }
 
   return (
@@ -52,6 +65,10 @@ export default function CareersPage() {
                 <label>Email</label>
                 <input type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
               </div>
+              <div className="field">
+                <label>Điện thoại</label>
+                <input required value={form.sdt} onChange={(e) => setForm({ ...form, sdt: e.target.value })} />
+              </div>
               <div className="field field--full">
                 <label>Vị trí</label>
                 <select value={form.viTri} onChange={(e) => setForm({ ...form, viTri: e.target.value })}>
@@ -64,7 +81,7 @@ export default function CareersPage() {
               </div>
             </div>
             <div className="modal-actions">
-              <button className="btn btn--gold" type="submit">Gửi hồ sơ</button>
+              <button className="btn btn--gold" type="submit" disabled={sending}>{sending ? 'Đang gửi…' : 'Gửi hồ sơ'}</button>
             </div>
           </form>
           <aside className="card">

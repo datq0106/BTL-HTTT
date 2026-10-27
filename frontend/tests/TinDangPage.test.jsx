@@ -1,12 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { BatDongSanApi, PhongApi, TinDangApi } from '../src/api/services'
 import TinDangPage from '../src/pages/admin/TinDangPage'
 
 vi.mock('../src/api/services', () => ({
   TinDangApi: { danhSach: vi.fn(), xuatBan: vi.fn(), an: vi.fn(), themAnh: vi.fn() },
   BatDongSanApi: { khuVuc: vi.fn(), danhSach: vi.fn() },
-  PhongApi: { danhSach: vi.fn() },
+  PhongApi: { danhSach: vi.fn(), chiTiet: vi.fn() },
 }))
 const toast = { loi: vi.fn(), thanhCong: vi.fn() }
 vi.mock('../src/context/ToastContext', () => ({ useToast: () => toast }))
@@ -36,7 +37,7 @@ describe('TinDangPage', () => {
     const catalogRefresh = vi.fn()
     window.addEventListener('catalog_updated', catalogRefresh)
     try {
-      render(<TinDangPage />)
+      render(<MemoryRouter><TinDangPage /></MemoryRouter>)
       const row = (await screen.findByText('Căn thử')).closest('tr')
       expect(within(row).getByText('Tòa A')).toBeTruthy()
 
@@ -54,7 +55,7 @@ describe('TinDangPage', () => {
   it('shows the server reason when publishing is refused', async () => {
     TinDangApi.danhSach.mockResolvedValue(page([draft]))
     TinDangApi.xuatBan.mockRejectedValue({ response: { data: { thongBao: 'Cần tải ít nhất một ảnh trước khi xuất bản' } } })
-    render(<TinDangPage />)
+    render(<MemoryRouter><TinDangPage /></MemoryRouter>)
     fireEvent.click(within((await screen.findByText('Căn thử')).closest('tr')).getByText('Xuất bản'))
     await waitFor(() => expect(toast.loi).toHaveBeenCalledWith('Cần tải ít nhất một ảnh trước khi xuất bản'))
     expect(toast.thanhCong).not.toHaveBeenCalled()
@@ -66,7 +67,7 @@ describe('TinDangPage', () => {
     TinDangApi.themAnh.mockResolvedValue({ data: uploaded })
     URL.createObjectURL = vi.fn(() => 'blob:preview')
     URL.revokeObjectURL = vi.fn()
-    render(<TinDangPage />)
+    render(<MemoryRouter><TinDangPage /></MemoryRouter>)
     fireEvent.click(within((await screen.findByText('Căn thử')).closest('tr')).getByText('Ảnh'))
     const input = document.querySelector('input[type="file"]')
     const submit = screen.getByText('Tải lên')
