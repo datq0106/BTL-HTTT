@@ -10,7 +10,9 @@ import java.util.List;
 public final class HoaDonDtos {
     private HoaDonDtos() {}
 
-    public record ChiSo(@NotNull Integer dichVuId, @NotNull @DecimalMin("0") BigDecimal chiSoMoi) {}
+    /** chiSoCu chỉ dùng cho hóa đơn đầu tiên của hợp đồng; các kỳ sau lấy chỉ số mới của kỳ trước. */
+    public record ChiSo(@NotNull Integer dichVuId, @DecimalMin("0") BigDecimal chiSoCu,
+                        @NotNull @DecimalMin("0") BigDecimal chiSoMoi) {}
     public record LapHoaDon(
             @NotNull Integer hopDongId,
             @NotBlank @Pattern(regexp = "^\\d{4}-(0[1-9]|1[0-2])$") String ky,
@@ -21,7 +23,7 @@ public final class HoaDonDtos {
     public record Dong(Integer dichVuId, String noiDung, String donVi, BigDecimal chiSoCu, BigDecimal chiSoMoi,
                        BigDecimal soLuong, BigDecimal donGia, BigDecimal thanhTien, boolean theoChiSo) {}
     public record GoiY(Integer hopDongId, String maHopDong, String maPhong, String khachThue, String ky,
-                       List<Dong> dong) {}
+                       boolean kyDau, List<Dong> dong) {}
     public record HoaDon(Long id, String maHoaDon, Integer hopDongId, String maHopDong, String maPhong,
                          String khachThue, String ky, BigDecimal tongTien, String trangThai,
                          LocalDate hanThanhToan, LocalDateTime ngayThanhToan, String phuongThuc,

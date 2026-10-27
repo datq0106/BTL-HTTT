@@ -25,6 +25,8 @@ import ConciergePage from './pages/portal/ConciergePage'
 import DichVuCuDanPage from './pages/portal/DichVuCuDanPage'
 import YeuCauPage from './pages/admin/YeuCauPage'
 import TinDangPage from './pages/admin/TinDangPage'
+import HoaDonPage from './pages/admin/HoaDonPage'
+import HoaDonCuaToi from './pages/portal/HoaDonCuaToi'
 import NotFoundPage from './pages/shared/NotFoundPage'
 import HomePage from './pages/site/HomePage'
 import ListingsPage from './pages/site/ListingsPage'
@@ -112,6 +114,7 @@ export default function App() {
                   <Route path="dich-vu" element={<DichVuPage />} />
                   <Route path="yeu-cau" element={<YeuCauPage />} />
                   <Route path="tin-dang" element={<TinDangPage />} />
+                  <Route path="hoa-don" element={<HoaDonPage />} />
                 </Route>
                 <Route element={<RequireAdmin />}>
                   <Route path="tai-khoan" element={<TaiKhoanPage />} />
@@ -120,6 +123,7 @@ export default function App() {
                   <Route path="cong-cu-dan" element={<CuDanDashboard />} />
                   <Route path="hop-dong-cua-toi" element={<HopDongCuaToi />} />
                   <Route path="dich-vu-cu-dan" element={<DichVuCuDanPage />} />
+                  <Route path="hoa-don-cua-toi" element={<HoaDonCuaToi />} />
                   <Route path="ho-tro" element={<ConciergePage />} />
                 </Route>
                 <Route path="thong-bao" element={<ThongBaoPage />} />

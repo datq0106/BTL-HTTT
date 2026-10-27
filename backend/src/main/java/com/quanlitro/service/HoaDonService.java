@@ -47,7 +47,8 @@ public class HoaDonService {
     public HoaDonDtos.GoiY goiY(Integer hopDongId, String ky) {
         HopDong h = layHopDong(hopDongId);
         return new HoaDonDtos.GoiY(h.getId(), h.getMaHopDong(), h.getPhong().getMaPhong(),
-                h.getKhachThue().getHoTen(), ky, tinhDong(h, Map.of()).stream().map(this::mapDong).toList());
+                h.getKhachThue().getHoTen(), ky, hoaDonRepo.findFirstByHopDong_IdOrderByKyDesc(h.getId()).isEmpty(),
+                tinhDong(h, Map.of(), Map.of()).stream().map(this::mapDong).toList());
     }
 
     @Transactional
@@ -63,8 +64,12 @@ public class HoaDonService {
         });
 
         Map<Integer, BigDecimal> chiSoMoi = new HashMap<>();
-        if (body.chiSo() != null) body.chiSo().forEach(c -> chiSoMoi.put(c.dichVuId(), c.chiSoMoi()));
-        List<HoaDonChiTiet> dong = tinhDong(h, chiSoMoi);
+        Map<Integer, BigDecimal> chiSoDau = new HashMap<>();
+        if (body.chiSo() != null) body.chiSo().forEach(c -> {
+            chiSoMoi.put(c.dichVuId(), c.chiSoMoi());
+            if (c.chiSoCu() != null) chiSoDau.put(c.dichVuId(), c.chiSoCu());
+        });
+        List<HoaDonChiTiet> dong = tinhDong(h, chiSoDau, chiSoMoi);
         for (HoaDonChiTiet d : dong) {
             if (d.getChiSoCu() == null) continue;
             if (d.getChiSoMoi() == null) throw new BusinessException("Thiếu chỉ số mới của " + d.getNoiDung());
@@ -151,15 +156,16 @@ public class HoaDonService {
     }
 
     /** Dòng hóa đơn: tiền phòng, dịch vụ cố định gắn hợp đồng, dịch vụ theo chỉ số đang áp dụng. */
-    private List<HoaDonChiTiet> tinhDong(HopDong h, Map<Integer, BigDecimal> chiSoMoi) {
+    private List<HoaDonChiTiet> tinhDong(HopDong h, Map<Integer, BigDecimal> chiSoDau, Map<Integer, BigDecimal> chiSoMoi) {
         List<HoaDonChiTiet> dong = new ArrayList<>();
         dong.add(dong(null, "Tiền phòng " + h.getPhong().getMaPhong(), "tháng", null, null, BigDecimal.ONE, h.getGiaThue()));
         for (HopDongDichVu dv : h.getDichVu()) {
             DichVu d = dv.getDichVu();
             dong.add(dong(d, d.getTenDichVu(), d.getDonVi(), null, null, dv.getSoLuong(), d.getDonGia()));
         }
-        Map<Integer, BigDecimal> chiSoCu = new HashMap<>();
-        hoaDonRepo.findFirstByHopDong_IdOrderByKyDesc(h.getId()).ifPresent(cuoi -> cuoi.getChiTiet().stream()
+        Optional<HoaDon> kyTruoc = hoaDonRepo.findFirstByHopDong_IdOrderByKyDesc(h.getId());
+        Map<Integer, BigDecimal> chiSoCu = new HashMap<>(kyTruoc.isEmpty() ? chiSoDau : Map.of());
+        kyTruoc.ifPresent(cuoi -> cuoi.getChiTiet().stream()
                 .filter(c -> c.getDichVu() != null && c.getChiSoMoi() != null)
                 .forEach(c -> chiSoCu.put(c.getDichVu().getId(), c.getChiSoMoi())));
         dichVuRepo.findAll(Sort.by("id")).stream()

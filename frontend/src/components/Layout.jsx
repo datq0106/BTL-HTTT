@@ -12,6 +12,7 @@ const MENU_NHAN_VIEN = [
   { to: '/quan-ly/loai-phong', label: 'Loại phòng', icon: 'layers' },
   { to: '/quan-ly/khach-thue', label: 'Khách thuê', icon: 'users' },
   { to: '/quan-ly/hop-dong', label: 'Hợp đồng', icon: 'file' },
+  { to: '/quan-ly/hoa-don', label: 'Hóa đơn', icon: 'calc' },
   { to: '/quan-ly/dich-vu', label: 'Dịch vụ', icon: 'spark' },
   { to: '/quan-ly/yeu-cau', label: 'Yêu cầu & Hỗ trợ', icon: 'phone' },
 ]
@@ -20,6 +21,7 @@ const MENU_CU_DAN = [
   { to: '/quan-ly/cong-cu-dan', label: 'Cổng cư dân', end: true, icon: 'home' },
   { to: '/quan-ly/hop-dong-cua-toi', label: 'Hồ sơ hợp đồng', icon: 'file' },
   { to: '/quan-ly/dich-vu-cu-dan', label: 'Dịch vụ & Chi phí', icon: 'spark' },
+  { to: '/quan-ly/hoa-don-cua-toi', label: 'Hóa đơn', icon: 'calc' },
   { to: '/quan-ly/thong-bao', label: 'Thông báo', icon: 'bell' },
   { to: '/quan-ly/ho-tro', label: 'Báo sự cố & Hỗ trợ', icon: 'phone' },
 ]
@@ -32,6 +34,8 @@ const TITLES = {
   '/quan-ly/khach-thue': ['Residents', 'Khách thuê'],
   '/quan-ly/hop-dong': ['Leasing', 'Hợp đồng'],
   '/quan-ly/dich-vu': ['Amenities', 'Dịch vụ'],
+  '/quan-ly/hoa-don': ['Billing', 'Hóa đơn & thu tiền'],
+  '/quan-ly/hoa-don-cua-toi': ['Billing', 'Hóa đơn của tôi'],
   '/quan-ly/yeu-cau': ['Service desk', 'Yêu cầu khách hàng & Cư dân'],
   '/quan-ly/tai-khoan': ['Access', 'Tài khoản'],
   '/quan-ly/thong-bao': ['Inbox', 'Thông báo'],

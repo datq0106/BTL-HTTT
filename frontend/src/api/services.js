@@ -84,6 +84,18 @@ export const KhachApi = {
   yeuCau: (params) => api.get('/khach/yeu-cau', { params }),
   chiTietYeuCau: (id) => api.get(`/khach/yeu-cau/${id}`),
   guiYeuCau: (body) => api.post('/khach/yeu-cau', body),
+  hoaDon: () => api.get('/khach/hoa-don'),
+  chiTietHoaDon: (id) => api.get(`/khach/hoa-don/${id}`),
+}
+
+export const HoaDonApi = {
+  danhSach: (params) => api.get('/hoa-don', { params }),
+  thongKe: (ky) => api.get('/hoa-don/thong-ke', { params: { ky } }),
+  goiY: (hopDongId, ky) => api.get('/hoa-don/goi-y', { params: { hopDongId, ky } }),
+  chiTiet: (id) => api.get(`/hoa-don/${id}`),
+  lap: (body) => api.post('/hoa-don', body),
+  thanhToan: (id, phuongThuc) => api.post(`/hoa-don/${id}/thanh-toan`, { phuongThuc }),
+  huy: (id) => api.delete(`/hoa-don/${id}`),
 }
 
 async function chuanBiCsrfCongKhai() {

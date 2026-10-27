@@ -65,6 +65,15 @@ export const NHAN = {
     xuat_ban: 'Đang xuất bản',
     an: 'Đã ẩn',
   },
+  hoaDon: {
+    da_chot: 'Chưa thanh toán',
+    da_thanh_toan: 'Đã thanh toán',
+  },
+  phuongThuc: {
+    tien_mat: 'Tiền mặt',
+    chuyen_khoan: 'Chuyển khoản',
+    vi_dien_tu: 'Ví điện tử',
+  },
   taiKhoan: {
     hoat_dong: 'Hoạt động',
     khoa: 'Đã khóa',
