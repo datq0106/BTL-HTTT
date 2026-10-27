@@ -1,8 +1,18 @@
 package com.quanlitro.controller;
 
 import com.quanlitro.dto.hopdong.HopDongResponse;
+import com.quanlitro.dto.common.PageResponse;
+import com.quanlitro.dto.yeucau.YeuCauDtos;
 import com.quanlitro.exception.ForbiddenException;
 import com.quanlitro.service.HopDongService;
+import com.quanlitro.service.YeuCauService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import com.quanlitro.utils.SecurityUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,9 +24,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class KhachController {
 
     private final HopDongService hopDongService;
+    private final YeuCauService yeuCauService;
 
-    public KhachController(HopDongService hopDongService) {
+    public KhachController(HopDongService hopDongService, YeuCauService yeuCauService) {
         this.hopDongService = hopDongService;
+        this.yeuCauService = yeuCauService;
     }
 
     @GetMapping("/hop-dong")
@@ -25,5 +37,19 @@ public class KhachController {
         return hopDongService.hopDongHienTaiCuaKhach(khachThueId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.noContent().build());
+    }
+
+    @GetMapping("/yeu-cau")
+    public PageResponse<YeuCauDtos.YeuCau> yeuCauCuaToi(@RequestParam(defaultValue = "0") int trang,
+                                                          @RequestParam(defaultValue = "20") int kichThuoc) {
+        return yeuCauService.cuaCuDan(trang, kichThuoc);
+    }
+
+    @GetMapping("/yeu-cau/{id}")
+    public YeuCauDtos.YeuCau chiTietYeuCau(@PathVariable Long id) { return yeuCauService.chiTietCuDan(id); }
+
+    @PostMapping("/yeu-cau") @ResponseStatus(HttpStatus.CREATED)
+    public YeuCauDtos.YeuCau guiYeuCau(@Valid @RequestBody YeuCauDtos.GuiCuDan body) {
+        return yeuCauService.guiCuDan(body);
     }
 }

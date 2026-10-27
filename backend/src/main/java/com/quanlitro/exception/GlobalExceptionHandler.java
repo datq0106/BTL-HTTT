@@ -41,6 +41,11 @@ public class GlobalExceptionHandler {
         return phanHoi(req, HttpStatus.BAD_REQUEST, ex.getMessage(), null, null);
     }
 
+    @ExceptionHandler(RateLimitException.class)
+    public Object xuLyQuaNhieuYeuCau(RateLimitException ex, HttpServletRequest req) {
+        return phanHoi(req, HttpStatus.TOO_MANY_REQUESTS, ex.getMessage(), null, null);
+    }
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public Object xuLyKhongTim(ResourceNotFoundException ex, HttpServletRequest req) {
         log.info("Không tìm thấy tại {}: {}", req.getRequestURI(), ex.getMessage());
