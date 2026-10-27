@@ -13,21 +13,20 @@ export default function ConciergePage() {
   const [items, setItems] = useState([])
   const [trang, setTrang] = useState(0)
   const [tongTrang, setTongTrang] = useState(0)
-  const [loading, setLoading] = useState(true)
+  const [loadedTrang, setLoadedTrang] = useState(null)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState('')
   const [detail, setDetail] = useState(null)
+  const loading = loadedTrang !== trang
 
-  const load = useCallback(async () => {
-    setLoading(true)
-    try {
-      const { data } = await KhachApi.yeuCau({ trang, kichThuoc: 10 })
+  const load = useCallback(() => KhachApi.yeuCau({ trang, kichThuoc: 10 })
+    .then(({ data }) => {
       setItems(data.noiDung || [])
       setTongTrang(data.tongSoTrang || 0)
       setError('')
-    } catch (err) { setError(thongBaoLoi(err)) }
-    finally { setLoading(false) }
-  }, [trang])
+    })
+    .catch((err) => setError(thongBaoLoi(err)))
+    .finally(() => setLoadedTrang(trang)), [trang])
 
   useEffect(() => { load() }, [load])
 

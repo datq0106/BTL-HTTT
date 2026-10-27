@@ -14,6 +14,8 @@ export default function ViewingPage() {
   const [sp] = useSearchParams()
   const san = sp.get('can')
   const [sending, setSending] = useState(false)
+  const [ngayToiThieu] = useState(() => new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' })
+    .format(new Date(Date.now() + 86400000)))
   const [form, setForm] = useState({
     ten: '', sdt: '', email: '', canId: san || '', ngay: '', khung: 'sang', loiNhan: '',
   })
@@ -76,7 +78,7 @@ export default function ViewingPage() {
               </div>
               <div className="field field--full">
                 <label>Ngày muốn xem</label>
-                <input type="date" required min={new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date(Date.now() + 86400000))} value={form.ngay} onChange={(e) => setForm({ ...form, ngay: e.target.value })} />
+                <input type="date" required min={ngayToiThieu} value={form.ngay} onChange={(e) => setForm({ ...form, ngay: e.target.value })} />
               </div>
               <div className="field field--full">
                 <label>Khung giờ ưu tiên</label>

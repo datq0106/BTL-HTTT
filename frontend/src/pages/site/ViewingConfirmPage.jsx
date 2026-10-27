@@ -17,21 +17,18 @@ const TRANG_THAI = {
 export default function ViewingConfirmPage() {
   const [params] = useSearchParams()
   const ma = params.get('ma')
-  const [data, setData] = useState(null)
-  const [loading, setLoading] = useState(Boolean(ma))
-  const [error, setError] = useState('')
+  const [result, setResult] = useState({ ma: null, data: null, error: '' })
 
   useEffect(() => {
-    setData(null)
-    setError('')
-    setLoading(Boolean(ma))
     if (!ma) return
     let active = true
-    PublicYeuCauApi.traCuu(ma).then((res) => { if (active) setData(res.data) })
-      .catch((err) => { if (active) setError(thongBaoLoi(err)) })
-      .finally(() => { if (active) setLoading(false) })
+    PublicYeuCauApi.traCuu(ma).then((res) => { if (active) setResult({ ma, data: res.data, error: '' }) })
+      .catch((err) => { if (active) setResult({ ma, data: null, error: thongBaoLoi(err) }) })
     return () => { active = false }
   }, [ma])
+
+  const loading = Boolean(ma) && result.ma !== ma
+  const { data, error } = result.ma === ma ? result : { data: null, error: '' }
 
   return (
     <div className="site-page">

@@ -15,7 +15,7 @@ export default function BudgetPage() {
       .filter((x) => x.gia <= nganSach && (!form.khu || x.khuVuc === form.khu) && x.trangThai !== 'bao_tri')
       .sort((a, b) => b.gia - a.gia)
       .slice(0, 6)
-  }, [nganSach, form.khu])
+  }, [LISTINGS, nganSach, form.khu])
 
   const khuHop = KHU_VUC.filter((k) => k.giaTu != null && k.giaTu <= nganSach)
 

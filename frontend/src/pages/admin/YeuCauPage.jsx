@@ -22,22 +22,22 @@ export default function YeuCauPage() {
   const [khungXacNhan, setKhungXacNhan] = useState('')
   const [create, setCreate] = useState(false)
   const [draft, setDraft] = useState(EMPTY_NEW)
-  const [loading, setLoading] = useState(true)
+  const [loadedKey, setLoadedKey] = useState(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const requestKey = JSON.stringify([applied, trang])
+  const loading = loadedKey !== requestKey
 
-  const load = useCallback(async () => {
-    setLoading(true)
-    try {
-      const [ds, thongKe] = await Promise.all([
-        YeuCauApi.danhSach({ ...applied, trang, kichThuoc: 10 }), YeuCauApi.thongKe(),
-      ])
+  const load = useCallback(() => Promise.all([
+    YeuCauApi.danhSach({ ...applied, trang, kichThuoc: 10 }), YeuCauApi.thongKe(),
+  ])
+    .then(([ds, thongKe]) => {
       setPage(ds.data)
       setStats(thongKe.data)
       setError('')
-    } catch (err) { setError(thongBaoLoi(err)) }
-    finally { setLoading(false) }
-  }, [applied, trang])
+    })
+    .catch((err) => setError(thongBaoLoi(err)))
+    .finally(() => setLoadedKey(JSON.stringify([applied, trang]))), [applied, trang])
 
   useEffect(() => { load() }, [load])
   useEffect(() => {

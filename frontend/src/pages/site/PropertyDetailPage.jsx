@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { VAN_PHONG } from '../../data/listings'
 import { useCatalog } from '../../context/CatalogContext'
-import { PublicTinDangApi } from '../../api/services'
+import { PublicTinDangApi, PublicYeuCauApi } from '../../api/services'
 import { tien } from '../../utils/format'
 import { Badge } from '../../components/ui'
 import { useToast } from '../../context/ToastContext'
@@ -10,7 +10,6 @@ import PropertyCard from '../../components/site/PropertyCard'
 import FloorPlan from '../../components/site/FloorPlan'
 import { useShortlist } from '../../context/ShortlistContext'
 import { Icon } from '../../components/icons'
-import { PublicYeuCauApi } from '../../api/services'
 import { thongBaoLoi } from '../../api/client'
 
 export default function PropertyDetailPage() {
@@ -18,8 +17,9 @@ export default function PropertyDetailPage() {
   const { khuVuc: KHU_VUC } = useCatalog()
   const [item, setItem] = useState(null)
   const [tuongTu, setTuongTu] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [loadedId, setLoadedId] = useState(null)
   const [error, setError] = useState('')
+  const loading = loadedId !== id
   const toast = useToast()
   const navigate = useNavigate()
   const { dao, coTrong, them } = useShortlist()
@@ -30,13 +30,14 @@ export default function PropertyDetailPage() {
 
   useEffect(() => {
     let active = true
-    setLoading(true)
-    setItem(null)
-    setAnh({ id, index: 0 })
     Promise.all([PublicTinDangApi.chiTiet(id), PublicTinDangApi.tuongTu(id)])
       .then(([main, related]) => { if (active) { setItem(main.data); setTuongTu(related.data || []); setError('') } })
-      .catch((err) => { if (active) setError(err?.response?.status === 404 ? 'Tin đăng không tồn tại hoặc đã được ẩn.' : thongBaoLoi(err)) })
-      .finally(() => { if (active) setLoading(false) })
+      .catch((err) => {
+        if (!active) return
+        setItem(null)
+        setError(err?.response?.status === 404 ? 'Tin đăng không tồn tại hoặc đã được ẩn.' : thongBaoLoi(err))
+      })
+      .finally(() => { if (active) setLoadedId(id) })
     return () => { active = false }
   }, [id])
 

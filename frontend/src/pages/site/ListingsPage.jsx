@@ -20,7 +20,7 @@ export default function ListingsPage() {
   const [ds, setDs] = useState([])
   const [tong, setTong] = useState(0)
   const [tongTrang, setTongTrang] = useState(0)
-  const [loading, setLoading] = useState(true)
+  const [loadedQuery, setLoadedQuery] = useState(null)
   const [error, setError] = useState('')
   const trang = Math.max(0, Number(sp.get('trang') || 0) || 0)
   const loc = {
@@ -32,15 +32,15 @@ export default function ListingsPage() {
   }
 
   const query = sp.toString()
+  const loading = loadedQuery !== query
   useEffect(() => {
     let active = true
-    setLoading(true)
     PublicTinDangApi.danhSach({ q: loc.keyword, khuVuc: loc.khuVuc, loai: loc.loai,
       giaDen: loc.giaDen || undefined, phongNgu: loc.phongNgu || undefined,
       sapXep, trang, kichThuoc: 12 })
       .then(({ data }) => { if (active) { setDs(data.noiDung || []); setTong(data.tongSoBanGhi || 0); setTongTrang(data.tongSoTrang || 0); setError('') } })
       .catch((err) => { if (active) setError(thongBaoLoi(err)) })
-      .finally(() => { if (active) setLoading(false) })
+      .finally(() => { if (active) setLoadedQuery(query) })
     return () => { active = false }
   }, [query]) // eslint-disable-line react-hooks/exhaustive-deps
 

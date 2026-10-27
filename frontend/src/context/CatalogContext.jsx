@@ -4,6 +4,18 @@ import { thongBaoLoi } from '../api/client'
 
 const CatalogContext = createContext(null)
 
+async function taiCatalog() {
+  const [khu, first] = await Promise.all([
+    PublicTinDangApi.khuVuc(), PublicTinDangApi.danhSach({ trang: 0, kichThuoc: 100 }),
+  ])
+  const rows = [...(first.data.noiDung || [])]
+  for (let trang = 1; trang < first.data.tongSoTrang; trang++) {
+    const { data } = await PublicTinDangApi.danhSach({ trang, kichThuoc: 100 })
+    rows.push(...(data.noiDung || []))
+  }
+  return { khuVuc: khu.data || [], listings: rows }
+}
+
 export function CatalogProvider({ children }) {
   const [khuVuc, setKhuVuc] = useState([])
   const [listings, setListings] = useState([])
@@ -11,36 +23,30 @@ export function CatalogProvider({ children }) {
   const [error, setError] = useState('')
   const version = useRef(0)
 
-  const reload = useCallback(async () => {
+  const fetchAll = useCallback(() => {
     const current = ++version.current
-    setLoading(true)
-    try {
-      const [khu, first] = await Promise.all([
-        PublicTinDangApi.khuVuc(), PublicTinDangApi.danhSach({ trang: 0, kichThuoc: 100 }),
-      ])
-      const rows = [...(first.data.noiDung || [])]
-      for (let trang = 1; trang < first.data.tongSoTrang; trang++) {
-        const { data } = await PublicTinDangApi.danhSach({ trang, kichThuoc: 100 })
-        rows.push(...(data.noiDung || []))
-      }
-      if (current === version.current) {
-        setKhuVuc(khu.data || [])
-        setListings(rows)
+    return taiCatalog()
+      .then((data) => {
+        if (current !== version.current) return
+        setKhuVuc(data.khuVuc)
+        setListings(data.listings)
         setError('')
-      }
-    } catch (err) {
-      if (current === version.current) setError(thongBaoLoi(err))
-    } finally {
-      if (current === version.current) setLoading(false)
-    }
+      })
+      .catch((err) => { if (current === version.current) setError(thongBaoLoi(err)) })
+      .finally(() => { if (current === version.current) setLoading(false) })
   }, [])
 
+  const reload = useCallback(() => {
+    setLoading(true)
+    return fetchAll()
+  }, [fetchAll])
+
   useEffect(() => {
-    reload()
-    const update = () => reload()
-    window.addEventListener('catalog_updated', update)
-    return () => { version.current++; window.removeEventListener('catalog_updated', update) }
-  }, [reload])
+    const ref = version
+    fetchAll()
+    window.addEventListener('catalog_updated', reload)
+    return () => { ref.current++; window.removeEventListener('catalog_updated', reload) }
+  }, [fetchAll, reload])
 
   const value = useMemo(() => ({
     khuVuc, listings, loading, error, reload,
