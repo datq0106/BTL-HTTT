@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { DashboardApi } from '../../api/services'
+import { DashboardApi, HoaDonApi, YeuCauApi } from '../../api/services'
 import { thongBaoLoi } from '../../api/client'
 import { ngay, so, tien } from '../../utils/format'
 import { Badge, Empty, PageHead } from '../../components/ui'
@@ -10,6 +10,8 @@ import { useAuth } from '../../context/AuthContext'
 
 export default function Dashboard() {
   const [data, setData] = useState(null)
+  const [hoaDon, setHoaDon] = useState(null)
+  const [yeuCau, setYeuCau] = useState(null)
   const toast = useToast()
   const { user, laAdmin } = useAuth()
 
@@ -17,6 +19,8 @@ export default function Dashboard() {
     DashboardApi.tongQuan()
       .then((r) => setData(r.data))
       .catch((e) => toast.loi(thongBaoLoi(e)))
+    HoaDonApi.thongKe().then((r) => setHoaDon(r.data)).catch(() => setHoaDon(null))
+    YeuCauApi.thongKe().then((r) => setYeuCau(r.data)).catch(() => setYeuCau(null))
   }, [toast])
 
   if (!data) return <div className="empty">Đang tải tổng quan…</div>
@@ -53,6 +57,19 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {(hoaDon || yeuCau) && (
+        <div className="grid-cards">
+          {hoaDon && <>
+            <Link to="/quan-ly/hoa-don" className="stat"><span>Phải thu kỳ {hoaDon.ky}</span><strong>{tien(hoaDon.phaiThu)}</strong><em>{so(hoaDon.soHoaDon)} hóa đơn</em></Link>
+            <div className="stat"><span>Đã thu kỳ này</span><strong>{tien(hoaDon.daThu)}</strong></div>
+            <Link to="/quan-ly/hoa-don" className="stat"><span>Tổng công nợ</span><strong>{tien(hoaDon.tongCongNo)}</strong><em>Chưa thanh toán</em></Link>
+          </>}
+          {yeuCau && (
+            <Link to="/quan-ly/yeu-cau" className="stat"><span>Yêu cầu chờ xử lý</span><strong>{so(yeuCau.choXuLy)}</strong><em>{so(yeuCau.khanCap)} khẩn cấp</em></Link>
+          )}
+        </div>
+      )}
 
       <div className="quick-grid" style={{ marginBottom: 22 }}>
         <Link to="/quan-ly/phong" className="quick-card">

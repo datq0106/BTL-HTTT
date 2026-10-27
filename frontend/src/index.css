@@ -280,6 +280,7 @@ img { max-width: 100%; display: block; }
   border: 1px solid var(--gold-soft);
   border-radius: 50%;
 }
+a.stat { color: inherit; text-decoration: none; }
 .stat span { color: var(--muted); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
 .stat strong {
   display: block;
