@@ -1,36 +1,39 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import SiteBanner from '../../components/site/SiteBanner'
-import { LISTINGS, listingTheoId, VAN_PHONG } from '../../data/listings'
+import { VAN_PHONG } from '../../data/listings'
+import { useCatalog } from '../../context/CatalogContext'
 import { useToast } from '../../context/ToastContext'
-import { themYeuCau } from '../../utils/yeuCauStore'
+import { PublicYeuCauApi } from '../../api/services'
+import { thongBaoLoi } from '../../api/client'
 
 export default function ViewingPage() {
   const toast = useToast()
+  const { listings: LISTINGS, listingTheoId, loading, error } = useCatalog()
   const navigate = useNavigate()
   const [sp] = useSearchParams()
   const san = sp.get('can')
+  const [sending, setSending] = useState(false)
   const [form, setForm] = useState({
-    ten: '', sdt: '', email: '', canId: san && listingTheoId(san) ? san : '', khung: 'sang', loiNhan: '',
+    ten: '', sdt: '', email: '', canId: san || '', ngay: '', khung: 'sang', loiNhan: '',
   })
 
-  const chon = useMemo(() => listingTheoId(form.canId), [form.canId])
+  const chon = listingTheoId(form.canId)
 
-  function gui(e) {
+  async function gui(e) {
     e.preventDefault()
-    themYeuCau({
-      nguon: 'khach_ngoai',
-      chuDe: 'xem-phong',
-      tieuDe: `Đăng ký xem căn ${chon ? chon.ma : (form.canId || 'Căn hộ')}`,
-      hoTen: form.ten.trim(),
-      sdt: form.sdt.trim(),
-      email: form.email.trim(),
-      maPhong: chon?.ma || '',
-      mucDo: 'binh_thuong',
-      noiDung: `Khách đăng ký xem căn vào khung giờ: ${form.khung === 'sang' ? 'Sáng (09:00 - 11:30)' : form.khung === 'chieu' ? 'Chiều (14:00 - 17:00)' : 'Cuối tuần'}. Ghi chú: ${form.loiNhan || 'Không có'}`,
-    })
-    toast.thanhCong('Đã đặt lịch. Officer sẽ xác nhận khung giờ trong 24 giờ làm việc.')
-    navigate('/dat-lich/xac-nhan', { state: { ten: form.ten, loai: 'xem' } })
+    if (sending || !chon?.nhanLich || !form.ngay) return
+    setSending(true)
+    try {
+      const gio = { sang: '09:00:00', chieu: '14:00:00', toi: '18:00:00' }[form.khung]
+      const { data } = await PublicYeuCauApi.datLich({
+        listingKey: chon.id, maPhong: chon.ma,
+        hoTen: form.ten.trim(), sdt: form.sdt.trim(), email: form.email.trim(),
+        khungDeNghi: `${form.ngay}T${gio}`, ghiChu: form.loiNhan.trim(),
+      })
+      navigate(`/dat-lich/xac-nhan?ma=${data.maTraCuu}`)
+    } catch (err) { toast.loi(thongBaoLoi(err)) }
+    finally { setSending(false) }
   }
 
   return (
@@ -43,6 +46,8 @@ export default function ViewingPage() {
         compact
       />
       <div className="site-page">
+        {error && <p role="alert">{error}</p>}
+        {loading && <p>Đang tải căn nhận lịch...</p>}
         <div className="detail-grid">
           <form className="card" onSubmit={gui}>
             <p className="page-kicker">Book a slot</p>
@@ -64,10 +69,14 @@ export default function ViewingPage() {
                 <label>Căn muốn xem</label>
                 <select required value={form.canId} onChange={(e) => setForm({ ...form, canId: e.target.value })}>
                   <option value="">Chọn căn</option>
-                  {LISTINGS.map((x) => (
+                  {LISTINGS.filter((x) => x.nhanLich).map((x) => (
                     <option key={x.id} value={x.id}>{x.ma} — {x.tieuDe}</option>
                   ))}
                 </select>
+              </div>
+              <div className="field field--full">
+                <label>Ngày muốn xem</label>
+                <input type="date" required min={new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date(Date.now() + 86400000))} value={form.ngay} onChange={(e) => setForm({ ...form, ngay: e.target.value })} />
               </div>
               <div className="field field--full">
                 <label>Khung giờ ưu tiên</label>
@@ -83,7 +92,7 @@ export default function ViewingPage() {
               </div>
             </div>
             <div className="modal-actions">
-              <button className="btn btn--gold" type="submit">Gửi desk</button>
+              <button className="btn btn--gold" type="submit" disabled={sending || !chon?.nhanLich}>{sending ? 'Đang gửi...' : 'Gửi desk'}</button>
             </div>
           </form>
           <aside className="card">

@@ -1,27 +1,57 @@
-import { Link, useLocation } from 'react-router-dom'
-import { VAN_PHONG } from '../../data/listings'
+import { useEffect, useState } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { PublicYeuCauApi } from '../../api/services'
+import { thongBaoLoi } from '../../api/client'
+import { ngayGioVietNam } from '../../utils/format'
+
+const LOAI = {
+  'lien-he': 'Liên hệ tư vấn', brief: 'Tìm căn theo nhu cầu',
+  'chu-nha': 'Chủ nhà gửi căn', 'quan-tam': 'Quan tâm căn', 'xem-phong': 'Xem căn',
+}
+const TRANG_THAI = {
+  cho_xu_ly: 'Đã tiếp nhận, chờ xử lý', dang_xu_ly: 'Đang xử lý',
+  da_xu_ly: 'Đã xử lý', cho_xac_nhan: 'Chờ xác nhận lịch',
+  da_xac_nhan: 'Đã xác nhận lịch', da_hoan_thanh: 'Đã hoàn thành', huy: 'Đã hủy',
+}
 
 export default function ViewingConfirmPage() {
-  const { state } = useLocation()
-  const ten = state?.ten
-  const loai = state?.loai === 'brief' ? 'brief' : 'xem nhà'
+  const [params] = useSearchParams()
+  const ma = params.get('ma')
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(Boolean(ma))
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    setData(null)
+    setError('')
+    setLoading(Boolean(ma))
+    if (!ma) return
+    let active = true
+    PublicYeuCauApi.traCuu(ma).then((res) => { if (active) setData(res.data) })
+      .catch((err) => { if (active) setError(thongBaoLoi(err)) })
+      .finally(() => { if (active) setLoading(false) })
+    return () => { active = false }
+  }, [ma])
 
   return (
     <div className="site-page">
       <div className="confirm-sheet">
         <p className="page-kicker">Desk received</p>
-        <h1>{ten ? `${ten}, yêu cầu đã vào bàn.` : 'Yêu cầu đã vào bàn.'}</h1>
-        <p className="lead">
-          {state?.moTa || 'Officer sẽ xác nhận khung giờ trong 24 giờ làm việc. Penthouse chỉ mở lịch riêng sau khi lọc hồ sơ.'}
-        </p>
-        <dl className="kv">
-          <dt>Loại yêu cầu</dt><dd>{loai === 'brief' ? 'Private brief' : 'Private viewing'}</dd>
-          <dt>Giờ desk</dt><dd>{VAN_PHONG.gio}</dd>
-          <dt>Hotline</dt><dd>{VAN_PHONG.dienThoai}</dd>
-        </dl>
+        {loading && <h1>Đang kiểm tra yêu cầu...</h1>}
+        {!loading && (!ma || error) && <><h1>Không xác nhận được yêu cầu</h1><p>{error || 'Thiếu mã tra cứu.'}</p></>}
+        {data && <>
+          <h1>Yêu cầu đã được tiếp nhận.</h1>
+          <p className="lead">Lưu lại đường dẫn này để theo dõi trạng thái. Bộ phận phụ trách sẽ liên hệ với bạn.</p>
+          <dl className="kv">
+            <dt>Mã tra cứu</dt><dd style={{ overflowWrap: 'anywhere' }}>{data.maTraCuu}</dd>
+            <dt>Loại yêu cầu</dt><dd>{LOAI[data.loai] || data.loai}</dd>
+            <dt>Trạng thái</dt><dd>{TRANG_THAI[data.lichXem?.trangThai || data.trangThai] || data.trangThai}</dd>
+            {data.lichXem && <><dt>Giờ đề nghị</dt><dd>{ngayGioVietNam(data.lichXem.khungDeNghi)}</dd></>}
+            {data.lichXem?.khungXacNhan && <><dt>Giờ xác nhận</dt><dd>{ngayGioVietNam(data.lichXem.khungXacNhan)}</dd></>}
+          </dl>
+        </>}
         <div className="stack-btns">
-          <Link to="/bat-dong-san" className="btn btn--gold">Tiếp tục xem quỹ</Link>
-          <Link to="/quan-tam" className="btn btn--ghost">Danh sách quan tâm</Link>
+          <Link to="/bat-dong-san" className="btn btn--gold">Tiếp tục xem căn</Link>
           <Link to="/" className="btn btn--ghost">Về trang chủ</Link>
         </div>
       </div>

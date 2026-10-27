@@ -1,9 +1,11 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import SiteBanner from '../../components/site/SiteBanner'
-import { KHU_VUC, VAN_PHONG } from '../../data/listings'
+import { VAN_PHONG } from '../../data/listings'
+import { useCatalog } from '../../context/CatalogContext'
 import { useToast } from '../../context/ToastContext'
-import { themYeuCau } from '../../utils/yeuCauStore'
+import { PublicYeuCauApi } from '../../api/services'
+import { thongBaoLoi } from '../../api/client'
 
 const BUOC = [
   { so: '01', tieu: 'Gửi hồ sơ căn', moTa: 'Địa chỉ, loại, hiện trạng. Desk hẹn khảo sát trong 48 giờ làm việc.' },
@@ -13,25 +15,27 @@ const BUOC = [
 ]
 
 export default function OwnersPage() {
+  const { khuVuc: KHU_VUC } = useCatalog()
   const toast = useToast()
+  const navigate = useNavigate()
+  const [sending, setSending] = useState(false)
   const [form, setForm] = useState({
     ten: '', sdt: '', email: '', khu: '', loai: 'Căn hộ', giaMong: '', ghiChu: '',
   })
 
-  function gui(e) {
+  async function gui(e) {
     e.preventDefault()
-    themYeuCau({
-      nguon: 'khach_ngoai',
-      chuDe: 'khac',
-      tieuDe: `[Chủ nhà] Ký gửi căn hộ (${form.khu || 'Hà Nội'})`,
-      hoTen: form.ten.trim(),
-      sdt: form.sdt.trim(),
-      email: form.email.trim(),
-      mucDo: 'binh_thuong',
-      noiDung: `Loại BĐS: ${form.loai}. Khu vực: ${form.khu}. Giá mong muốn: ${form.giaMong || 'Thương lượng'}. Ghi chú: ${form.ghiChu || 'Không có'}`,
-    })
-    toast.thanhCong('Đã nhận hồ sơ căn. Asset desk sẽ liên hệ để hẹn khảo sát.')
-    setForm({ ten: '', sdt: '', email: '', khu: '', loai: 'Căn hộ', giaMong: '', ghiChu: '' })
+    if (sending) return
+    setSending(true)
+    try {
+      const { data } = await PublicYeuCauApi.gui({
+        chuDe: 'chu-nha', tieuDe: 'Chủ nhà gửi căn khảo sát',
+        hoTen: form.ten.trim(), sdt: form.sdt.trim(), email: form.email.trim(),
+        noiDung: `Loại BĐS: ${form.loai}. Khu vực: ${form.khu}. Giá mong muốn: ${form.giaMong || 'Thương lượng'}. Ghi chú: ${form.ghiChu || 'Không có'}`,
+      })
+      navigate(`/dat-lich/xac-nhan?ma=${data.maTraCuu}`)
+    } catch (err) { toast.loi(thongBaoLoi(err)) }
+    finally { setSending(false) }
   }
 
   return (
@@ -106,7 +110,7 @@ export default function OwnersPage() {
               </div>
             </div>
             <div className="modal-actions">
-              <button className="btn btn--gold" type="submit">Gửi asset desk</button>
+              <button className="btn btn--gold" type="submit" disabled={sending}>{sending ? 'Đang gửi...' : 'Gửi asset desk'}</button>
             </div>
           </form>
           <aside className="card">

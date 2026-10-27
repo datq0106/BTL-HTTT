@@ -1,37 +1,34 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import SiteBanner from '../../components/site/SiteBanner'
-import { DOI_NGU, KHU_VUC, VAN_PHONG } from '../../data/listings'
+import { DOI_NGU, VAN_PHONG } from '../../data/listings'
+import { useCatalog } from '../../context/CatalogContext'
 import { useToast } from '../../context/ToastContext'
-import { themYeuCau } from '../../utils/yeuCauStore'
+import { PublicYeuCauApi } from '../../api/services'
+import { thongBaoLoi } from '../../api/client'
 
 export default function BriefPage() {
+  const { khuVuc: KHU_VUC } = useCatalog()
   const toast = useToast()
   const navigate = useNavigate()
+  const [sending, setSending] = useState(false)
   const [form, setForm] = useState({
     ten: '', sdt: '', email: '', khu: '', pn: '', nganSach: '', thoiHan: '12', ghiChu: '',
   })
 
-  function gui(e) {
+  async function gui(e) {
     e.preventDefault()
-    themYeuCau({
-      nguon: 'khach_ngoai',
-      chuDe: 'xem-phong',
-      tieuDe: `[Tìm căn] Yêu cầu tìm căn theo ngân sách (${form.khu || 'Hà Nội'})`,
-      hoTen: form.ten.trim(),
-      sdt: form.sdt.trim(),
-      email: form.email.trim(),
-      mucDo: 'binh_thuong',
-      noiDung: `Khu vực: ${form.khu || 'Tùy chọn'}. Số PN: ${form.pn || 'Tùy ý'}. Ngân sách: ${form.nganSach || 'Thương lượng'}. Thời hạn: ${form.thoiHan} tháng. Ghi chú: ${form.ghiChu || 'Không có'}`,
-    })
-    toast.thanhCong('Đã nhận brief. Officer địa bàn sẽ gọi trong giờ hành chính.')
-    navigate('/dat-lich/xac-nhan', {
-      state: {
-        loai: 'brief',
-        ten: form.ten,
-        moTa: 'Desk sẽ ghép căn khớp ngân sách trước khi mở lịch xem.',
-      },
-    })
+    if (sending) return
+    setSending(true)
+    try {
+      const { data } = await PublicYeuCauApi.gui({
+        chuDe: 'brief', tieuDe: 'Yêu cầu tìm căn theo ngân sách',
+        hoTen: form.ten.trim(), sdt: form.sdt.trim(), email: form.email.trim(),
+        noiDung: `Khu vực: ${form.khu || 'Linh hoạt'}. Số PN: ${form.pn || 'Linh hoạt'}. Ngân sách: ${form.nganSach}. Thời hạn: ${form.thoiHan} tháng. Ghi chú: ${form.ghiChu || 'Không có'}`,
+      })
+      navigate(`/dat-lich/xac-nhan?ma=${data.maTraCuu}`)
+    } catch (err) { toast.loi(thongBaoLoi(err)) }
+    finally { setSending(false) }
   }
 
   return (
@@ -102,7 +99,7 @@ export default function BriefPage() {
               </div>
             </div>
             <div className="modal-actions">
-              <button className="btn btn--gold" type="submit">Gửi brief</button>
+              <button className="btn btn--gold" type="submit" disabled={sending}>{sending ? 'Đang gửi...' : 'Gửi brief'}</button>
             </div>
           </form>
           <aside className="card">

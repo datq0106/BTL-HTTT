@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Link, Navigate, useParams } from 'react-router-dom'
-import { listingTheoId, listingsTuongTu, KHU_VUC, VAN_PHONG } from '../../data/listings'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { VAN_PHONG } from '../../data/listings'
+import { useCatalog } from '../../context/CatalogContext'
+import { PublicTinDangApi } from '../../api/services'
 import { tien } from '../../utils/format'
 import { Badge } from '../../components/ui'
 import { useToast } from '../../context/ToastContext'
@@ -8,37 +10,54 @@ import PropertyCard from '../../components/site/PropertyCard'
 import FloorPlan from '../../components/site/FloorPlan'
 import { useShortlist } from '../../context/ShortlistContext'
 import { Icon } from '../../components/icons'
-import { themYeuCau } from '../../utils/yeuCauStore'
+import { PublicYeuCauApi } from '../../api/services'
+import { thongBaoLoi } from '../../api/client'
 
 export default function PropertyDetailPage() {
   const { id } = useParams()
-  const item = listingTheoId(id)
+  const { khuVuc: KHU_VUC } = useCatalog()
+  const [item, setItem] = useState(null)
+  const [tuongTu, setTuongTu] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const toast = useToast()
+  const navigate = useNavigate()
   const { dao, coTrong, them } = useShortlist()
-  const [anh, setAnh] = useState(0)
+  const [anh, setAnh] = useState({ id, index: 0 })
+  const anhHienTai = anh.id === id ? anh.index : 0
+  const [sending, setSending] = useState(false)
   const [form, setForm] = useState({ ten: '', sdt: '', email: '', loiNhan: '' })
 
-  useEffect(() => { setAnh(0) }, [id])
+  useEffect(() => {
+    let active = true
+    setLoading(true)
+    setItem(null)
+    setAnh({ id, index: 0 })
+    Promise.all([PublicTinDangApi.chiTiet(id), PublicTinDangApi.tuongTu(id)])
+      .then(([main, related]) => { if (active) { setItem(main.data); setTuongTu(related.data || []); setError('') } })
+      .catch((err) => { if (active) setError(err?.response?.status === 404 ? 'Tin đăng không tồn tại hoặc đã được ẩn.' : thongBaoLoi(err)) })
+      .finally(() => { if (active) setLoading(false) })
+    return () => { active = false }
+  }, [id])
 
-  if (!item) return <Navigate to="/bat-dong-san" replace />
+  if (loading) return <div className="site-page"><p>Đang tải hồ sơ căn...</p></div>
+  if (!item) return <div className="site-page"><p role="alert">{error}</p><Link to="/bat-dong-san">Xem quỹ căn</Link></div>
   const khu = KHU_VUC.find((k) => k.id === item.khuVuc)
-  const tuongTu = listingsTuongTu(item)
 
-  function gui(e) {
+  async function gui(e) {
     e.preventDefault()
-    themYeuCau({
-      nguon: 'khach_ngoai',
-      chuDe: 'xem-phong',
-      tieuDe: `Khách hỏi thuê căn ${item.ma} - ${item.tieuDe}`,
-      hoTen: form.ten.trim(),
-      sdt: form.sdt.trim(),
-      email: form.email.trim(),
-      maPhong: item.ma,
-      mucDo: 'binh_thuong',
-      noiDung: form.loiNhan.trim() || `Khách quan tâm căn hộ ${item.ma} (${item.giaNiemYet} triệu/tháng). Cần tư vấn xem phòng.`,
-    })
-    toast.thanhCong('Đã gửi yêu cầu tới Leasing Desk. Đội ngũ sẽ liên hệ trong giờ hành chính.')
-    setForm({ ten: '', sdt: '', email: '', loiNhan: '' })
+    if (sending) return
+    setSending(true)
+    try {
+      const { data } = await PublicYeuCauApi.gui({
+        chuDe: 'quan-tam', tieuDe: `Quan tâm căn ${item.ma} - ${item.tieuDe}`,
+        hoTen: form.ten.trim(), sdt: form.sdt.trim(), email: form.email.trim(),
+        maPhong: item.ma, listingKey: item.id,
+        noiDung: form.loiNhan.trim() || `Cần tư vấn căn ${item.ma}`,
+      })
+      navigate(`/dat-lich/xac-nhan?ma=${data.maTraCuu}`)
+    } catch (err) { toast.loi(thongBaoLoi(err)) }
+    finally { setSending(false) }
   }
 
   return (
@@ -48,11 +67,11 @@ export default function PropertyDetailPage() {
       </p>
       <div className="detail-hero">
         <div className="detail-gallery">
-          <img src={item.anh[anh]} alt={item.tieuDe} />
+          <img src={item.anh[anhHienTai]} alt={item.tieuDe} />
           {item.anh.length > 1 && (
             <div className="thumbs">
               {item.anh.map((src, i) => (
-                <button key={src} type="button" className={i === anh ? 'on' : ''} onClick={() => setAnh(i)}>
+                <button key={src} type="button" className={i === anhHienTai ? 'on' : ''} onClick={() => setAnh({ id, index: i })}>
                   <img src={src} alt="" />
                 </button>
               ))}
@@ -143,7 +162,7 @@ export default function PropertyDetailPage() {
         </div>
         <form className="card enquire enquire--sticky" onSubmit={gui}>
           <p className="page-kicker">Private viewing</p>
-          <h3>Đặt lịch xem nhà</h3>
+          <h3>Hỏi về căn này</h3>
           <p className="muted">Leasing officer xác nhận trong {VAN_PHONG.gio}.</p>
           <div className="field">
             <label>Họ tên</label>
@@ -161,9 +180,9 @@ export default function PropertyDetailPage() {
             <label>Ghi chú</label>
             <textarea rows={3} value={form.loiNhan} onChange={(e) => setForm({ ...form, loiNhan: e.target.value })} placeholder="Khung giờ muốn xem…" />
           </div>
-          <button className="btn btn--gold" type="submit" style={{ width: '100%', justifyContent: 'center' }}>Gửi yêu cầu</button>
+          <button className="btn btn--gold" type="submit" disabled={sending} style={{ width: '100%', justifyContent: 'center' }}>{sending ? 'Đang gửi...' : 'Gửi yêu cầu'}</button>
           <p className="muted" style={{ marginTop: 10, textAlign: 'center' }}>
-            <Link to={`/dat-lich?can=${item.id}`} className="text-link">Hoặc mở form đặt lịch đầy đủ</Link>
+            {item.nhanLich ? <Link to={`/dat-lich?can=${item.id}`} className="text-link">Hoặc mở form đặt lịch đầy đủ</Link> : 'Căn hiện chưa nhận lịch xem.'}
           </p>
         </form>
       </div>

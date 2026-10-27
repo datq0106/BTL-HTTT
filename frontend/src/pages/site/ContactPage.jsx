@@ -1,35 +1,31 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { VAN_PHONG, DOI_NGU } from '../../data/listings'
 import { useToast } from '../../context/ToastContext'
 import SiteBanner from '../../components/site/SiteBanner'
-import { themYeuCau } from '../../utils/yeuCauStore'
+import { PublicYeuCauApi } from '../../api/services'
+import { thongBaoLoi } from '../../api/client'
 
 export default function ContactPage() {
   const toast = useToast()
+  const navigate = useNavigate()
+  const [sending, setSending] = useState(false)
   const [form, setForm] = useState({ ten: '', sdt: '', email: '', nhuCau: 'thue', noiDung: '' })
 
-  function gui(e) {
+  async function gui(e) {
     e.preventDefault()
-    const nhuCauMap = {
-      thue: 'Khách muốn tìm thuê căn hộ',
-      chu: 'Chủ nhà muốn gửi căn vào quỹ',
-      'cu-dan': 'Cư dân cần hỗ trợ dịch vụ lưu trú',
-    }
-
-    themYeuCau({
-      nguon: form.nhuCau === 'cu-dan' ? 'cu_dan' : 'khach_ngoai',
-      chuDe: form.nhuCau === 'cu-dan' ? 'bao-tri' : form.nhuCau === 'chu' ? 'khac' : 'xem-phong',
-      tieuDe: `[Liên hệ] ${nhuCauMap[form.nhuCau] || 'Yêu cầu tư vấn'}`,
-      hoTen: form.ten.trim(),
-      sdt: form.sdt.trim(),
-      email: form.email.trim(),
-      mucDo: 'binh_thuong',
-      noiDung: `Nhu cầu: ${nhuCauMap[form.nhuCau] || form.nhuCau}\nNội dung liên hệ: ${form.noiDung.trim()}`,
-    })
-
-    toast.thanhCong('Đã gửi liên hệ tới Bộ phận Leasing. Đội ngũ sẽ phản hồi trong giờ làm việc.')
-    setForm({ ten: '', sdt: '', email: '', nhuCau: 'thue', noiDung: '' })
+    if (sending) return
+    setSending(true)
+    try {
+      const { data } = await PublicYeuCauApi.gui({
+        chuDe: form.nhuCau === 'chu' ? 'chu-nha' : 'lien-he',
+        tieuDe: form.nhuCau === 'chu' ? 'Chủ nhà gửi căn' : 'Liên hệ tư vấn',
+        hoTen: form.ten.trim(), sdt: form.sdt.trim(), email: form.email.trim(),
+        noiDung: `Nhu cầu: ${form.nhuCau}. Nội dung: ${form.noiDung.trim()}`,
+      })
+      navigate(`/dat-lich/xac-nhan?ma=${data.maTraCuu}`)
+    } catch (err) { toast.loi(thongBaoLoi(err)) }
+    finally { setSending(false) }
   }
 
   return (
@@ -73,7 +69,7 @@ export default function ContactPage() {
               </div>
             </div>
             <div className="modal-actions">
-              <button className="btn btn--gold" type="submit">Gửi liên hệ</button>
+              <button className="btn btn--gold" type="submit" disabled={sending}>{sending ? 'Đang gửi...' : 'Gửi liên hệ'}</button>
             </div>
           </form>
           <aside className="card">
