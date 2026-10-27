@@ -53,6 +53,8 @@ Mỗi mã việc là một gói có thể nghiệm thu độc lập. Thứ tự 
 
 ### F5 — Chỉ số, hóa đơn, thanh toán, công nợ (P1, 3–4 tuần; sau F4)
 
+**Tiến độ 28/10/2026 (bản demo):** migration V4 thêm `hoa_don`, `hoa_don_chi_tiet` và `fn_cong_no_hop_dong`. Mỗi hợp đồng một hóa đơn/kỳ = tiền phòng + dịch vụ cố định + điện/nước theo chỉ số (chỉ số cũ lấy từ kỳ trước, kỳ đầu nhập tay). Trạng thái chỉ có chưa thanh toán → đã thanh toán; hủy được hóa đơn mới nhất chưa thu. Màn `/quan-ly/hoa-don` (lập, thu, thống kê kỳ) và `/quan-ly/hoa-don-cua-toi` cho cư dân; lập hóa đơn gửi thông báo cho cư dân; công nợ hợp đồng có số thật. Không làm thanh toán một phần, điều chỉnh hóa đơn đã chốt, PDF. Xem [API F5](09-f5-hoa-don-api.md).
+
 - **DB:** bảng chỉ số/kỳ, hóa đơn, dòng chi tiết, thanh toán; index/unique theo hợp đồng+kỳ, mã giao dịch. Migration giữ được dữ liệu hợp đồng cũ.
 - **BE:** nhập/chốt chỉ số, tính tiền phòng và dịch vụ theo giá chụp tại kỳ, tạo/chốt/hủy hóa đơn, ghi thu một phần/đủ, tính công nợ, hạn trả, thông báo. Dùng transaction và `BigDecimal`; quy tắc hoàn cọc khi thanh lý có số nợ phải được chốt trước.
 - **FE staff:** trang nhập chỉ số, hóa đơn, thu tiền, lịch sử và lọc theo kỳ/phòng/trạng thái; bổ sung công nợ thật vào hợp đồng/dashboard.

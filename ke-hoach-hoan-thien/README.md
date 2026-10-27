@@ -1,5 +1,9 @@
 # Kế hoạch hoàn thiện hệ thống quản lý cho thuê
 
+## Phạm vi demo (cập nhật 28/10/2026)
+
+Dự án được hoàn thiện ở mức **demo cho báo cáo bài tập lớn**, không phải hệ thống vận hành thật. Các phần dưới đây được giữ làm định hướng; khi triển khai chọn bản đơn giản nhất chạy được và trình diễn được. Không làm: đối chiếu/nâng cấp DB Aiven, thanh toán một phần và điều chỉnh hóa đơn, thanh toán online, email/SMS, CMS, CI/staging. Dữ liệu demo tạo bằng `python scripts/seed_demo.py`.
+
 ## Mục tiêu
 
 Mọi thao tác trên giao diện phải có kết quả đúng và có thể kiểm chứng: dữ liệu được lưu ở nơi phù hợp, người có quyền xem được từ thiết bị khác, người không có quyền bị từ chối, trạng thái và thông báo phản ánh dữ liệu thật. Các trang thuần nội dung vẫn có thể dùng nội dung tĩnh nếu không cần biên tập trong hệ thống; các form không được báo thành công khi chưa lưu yêu cầu.
@@ -14,7 +18,7 @@ Kế hoạch này được lập theo mã nguồn tại `E:/GIT/BTL-HTTT` ngày 
 4. [04-backlog-trien-khai.md](04-backlog-trien-khai.md): các gói việc FE/BE/DB, thứ tự phụ thuộc, tiêu chí hoàn thành.
 5. [05-kiem-thu-nghiem-thu.md](05-kiem-thu-nghiem-thu.md): kịch bản kiểm thử và điều kiện phát hành.
 6. [06-quyet-dinh-can-chot.md](06-quyet-dinh-can-chot.md): các quyết định nghiệp vụ cần xác nhận trước khi viết phần liên quan.
-7. [07-f2-api-thuc-te.md](07-f2-api-thuc-te.md) và [08-f3-api-thuc-te.md](08-f3-api-thuc-te.md): endpoint đã triển khai cho yêu cầu/lịch xem và tin đăng.
+7. [07-f2-api-thuc-te.md](07-f2-api-thuc-te.md) và [08-f3-api-thuc-te.md](08-f3-api-thuc-te.md): endpoint đã triển khai cho yêu cầu/lịch xem và tin đăng; [09-f5-hoa-don-api.md](09-f5-hoa-don-api.md) cho hóa đơn.
 
 ## Phân loại ưu tiên
 
