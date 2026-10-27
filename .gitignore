@@ -7,5 +7,10 @@
 .env
 .env.*
 !.env.example
+backend/uploads/
+frontend/node_modules/
+frontend/dist/
+backups/
 application-local.properties
 application-local.yml
+__pycache__/
