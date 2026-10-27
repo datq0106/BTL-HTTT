@@ -23,11 +23,6 @@ export default function SiteLayout() {
 
   return (
     <div className="site">
-      <div className="site-topbar">
-        <span>{VAN_PHONG.diaChi}</span>
-        <span className="site-topbar__mid">{VAN_PHONG.dienThoai} · {VAN_PHONG.email}</span>
-        <span>{VAN_PHONG.gio}</span>
-      </div>
       <header className={`site-nav ${scrolled || mo ? 'is-solid' : ''}`}>
         <Link to="/" className="site-logo" onClick={() => setMo(false)}>
           <span className="brand-mark"><Icon name="home" size={18} /></span>
