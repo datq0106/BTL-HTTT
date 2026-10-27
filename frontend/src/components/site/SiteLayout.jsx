@@ -1,19 +1,16 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import { Icon } from '../icons'
 import { VAN_PHONG } from '../../data/listings'
 import { useAuth } from '../../context/AuthContext'
-import { useToast } from '../../context/ToastContext'
 import { useShortlist } from '../../context/ShortlistContext'
 
 export default function SiteLayout() {
   const { user, duongDanSauDangNhap } = useAuth()
-  const toast = useToast()
   const { soLuong } = useShortlist()
   const [scrolled, setScrolled] = useState(false)
   const [mo, setMo] = useState(false)
   const [moMaison, setMoMaison] = useState(false)
-  const [email, setEmail] = useState('')
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
@@ -23,12 +20,6 @@ export default function SiteLayout() {
   }, [])
 
   const portal = user ? duongDanSauDangNhap : '/dang-nhap'
-
-  function dangKyBrief(e) {
-    e.preventDefault()
-    toast.thanhCong('Đã ghi nhận. Research desk sẽ gửi market note định kỳ.')
-    setEmail('')
-  }
 
   return (
     <div className="site">
@@ -79,11 +70,11 @@ export default function SiteLayout() {
       </header>
       <Outlet />
       <footer className="site-foot">
-        <div className="site-foot__grid site-foot__grid--4">
+        <div className="site-foot__grid site-foot__grid--5">
           <div>
             <p className="page-kicker">Black Panther</p>
             <h3>Vận hành không gian sống như một quỹ tài sản.</h3>
-            <p className="muted">Tư vấn leasing, quản lý cư dân và hợp đồng dài hạn cho căn hộ, loft và nhà phố tại Hà Nội.</p>
+            <p className="muted">Tư vấn leasing, quản lý cư dân và hợp đồng dài hạn cho căn hộ, loft và nhà phố tại TP. Hồ Chí Minh.</p>
           </div>
           <div>
             <h4>Văn phòng</h4>
@@ -92,43 +83,35 @@ export default function SiteLayout() {
             <p>{VAN_PHONG.email}</p>
             <p>{VAN_PHONG.gio}</p>
           </div>
-          <div>
-            <h4>Danh mục</h4>
+          <nav aria-label="Thuê nhà">
+            <h4>Thuê nhà</h4>
             <Link to="/bat-dong-san">Căn đang cho thuê</Link>
             <Link to="/ban-do">Bản đồ quỹ</Link>
-            <Link to="/brief">Brief nhu cầu</Link>
-            <Link to="/quan-tam">Danh sách quan tâm</Link>
-            <Link to="/so-sanh">So sánh căn</Link>
-            <Link to="/ngan-sach">Tính ngân sách</Link>
             <Link to="/khu-vuc">Khu vực</Link>
-            <Link to="/loi-khach">Lời khách</Link>
-            <Link to="/huong-dan">Hướng dẫn ở</Link>
+            <Link to="/ngan-sach">Tính ngân sách</Link>
+            <Link to="/so-sanh">So sánh căn</Link>
+            <Link to="/dat-lich">Đặt lịch xem nhà</Link>
+            <Link to="/brief">Brief nhu cầu</Link>
+          </nav>
+          <nav aria-label="Về chúng tôi">
+            <h4>Về chúng tôi</h4>
             <Link to="/dich-vu">Dịch vụ leasing</Link>
             <Link to="/chu-nha">Gửi căn vào quỹ</Link>
-            <Link to="/dat-lich">Đặt lịch xem nhà</Link>
             <Link to="/quy-trinh">Quy trình thuê</Link>
             <Link to="/doi-ngu">Đội ngũ</Link>
             <Link to="/tuyen-dung">Tuyển dụng</Link>
             <Link to="/bao-chi">Báo chí</Link>
             <Link to="/thi-truong">Ghi chép thị trường</Link>
+          </nav>
+          <nav aria-label="Hỗ trợ">
+            <h4>Hỗ trợ</h4>
             <Link to="/hoi-dap">Hỏi đáp</Link>
+            <Link to="/huong-dan">Hướng dẫn ở</Link>
+            <Link to="/loi-khach">Lời khách</Link>
+            <Link to="/quan-tam">Danh sách quan tâm</Link>
             <Link to="/chinh-sach">Điều khoản</Link>
             <Link to="/dang-nhap">Cổng thành viên</Link>
-          </div>
-          <div>
-            <h4>Market brief</h4>
-            <p className="muted">Nhận ghi chú định giá khu vực — không spam, không tin rao.</p>
-            <form className="foot-brief" onSubmit={dangKyBrief}>
-              <input
-                type="email"
-                required
-                placeholder="Email công việc"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <button className="btn btn--gold btn--sm" type="submit">Đăng ký</button>
-            </form>
-          </div>
+          </nav>
         </div>
         <div className="site-foot__copy">
           <span>© {new Date().getFullYear()} Black Panther Property Desk</span>

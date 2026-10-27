@@ -25,8 +25,8 @@
   --shadow: 0 18px 50px rgba(12, 27, 51, 0.08);
   --shadow-sm: 0 8px 24px rgba(12, 27, 51, 0.06);
   --radius: 14px;
-  --serif: "Cormorant Garamond", "Times New Roman", serif;
-  --sans: "Manrope", "Segoe UI", system-ui, sans-serif;
+  --serif: "Playfair Display", "Times New Roman", serif;
+  --sans: "Be Vietnam Pro", "Segoe UI", system-ui, sans-serif;
   color: var(--ink);
   background: var(--cream);
   font: 15px/1.55 var(--sans);
@@ -247,10 +247,10 @@ img { max-width: 100%; display: block; }
 .page-head h1 {
   margin: 0;
   font-family: var(--serif);
-  font-size: 38px;
+  font-size: 34px;
   font-weight: 600;
   letter-spacing: -0.02em;
-  line-height: 1.05;
+  line-height: 1.15;
 }
 .page-head p { margin: 6px 0 0; color: var(--muted); }
 .page-head__actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
@@ -509,7 +509,7 @@ table a {
   color: #fff;
   background:
     linear-gradient(180deg, rgba(12, 27, 51, 0.28) 0%, rgba(12, 27, 51, 0.78) 100%),
-    url("/properties/hero.jpg") center/cover;
+    url("/properties/mat-tien-chung-cu.jpg") center/cover;
   padding: 40px 48px;
   display: flex;
   flex-direction: column;
@@ -526,9 +526,9 @@ table a {
   position: relative;
   z-index: 1;
   font-family: var(--serif);
-  font-size: clamp(40px, 5vw, 64px);
+  font-size: clamp(36px, 4.4vw, 56px);
   font-weight: 600;
-  line-height: 1.05;
+  line-height: 1.12;
   max-width: 520px;
   margin: 0;
 }
@@ -788,9 +788,9 @@ table a {
 .hero-re h1 {
   margin: 0 0 12px;
   font-family: var(--serif);
-  font-size: clamp(40px, 6vw, 68px);
+  font-size: clamp(38px, 5vw, 60px);
   font-weight: 600;
-  line-height: 1.05;
+  line-height: 1.12;
   letter-spacing: -0.02em;
 }
 .hero-re p { color: #e8e2d6; max-width: 540px; }
@@ -856,8 +856,9 @@ table a {
   font-weight: 600;
   letter-spacing: -0.02em;
   margin: 0 0 8px;
+  line-height: 1.18;
 }
-.section-head h2, .site-section h2 { font-size: 36px; }
+.section-head h2, .site-section h2 { font-size: clamp(28px, 3vw, 34px); }
 .lead { font-size: 17px; max-width: 520px; }
 
 .prop-grid {
@@ -915,6 +916,9 @@ table a {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(12, 27, 51, 0.72);
 }
 .prop-card__media .badge {
   position: absolute;
@@ -933,7 +937,7 @@ table a {
 .prop-card h3 {
   margin: 0;
   font-family: var(--serif);
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 600;
   line-height: 1.2;
 }
@@ -950,17 +954,20 @@ table a {
 .prop-specs--block { flex-wrap: wrap; }
 .prop-card__foot {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: baseline;
-  gap: 8px;
+  gap: 4px 12px;
   margin-top: auto;
   padding-top: 8px;
 }
 .prop-card__foot strong {
   font-family: var(--serif);
-  font-size: 22px;
+  font-size: 21px;
   color: var(--navy);
+  white-space: nowrap;
 }
+.prop-card__foot .text-link { white-space: nowrap; }
 .prop-card__foot span { font-family: var(--sans); font-size: 12px; color: var(--muted); font-weight: 500; }
 
 .split {
@@ -1038,9 +1045,10 @@ table a {
 .page-hero { max-width: 720px; margin-bottom: 28px; }
 .page-hero h1 {
   font-family: var(--serif);
-  font-size: clamp(36px, 5vw, 52px);
+  font-size: clamp(32px, 4.2vw, 46px);
   font-weight: 600;
   margin: 0 0 10px;
+  line-height: 1.15;
 }
 .listing-filter {
   display: grid;
@@ -1117,9 +1125,10 @@ table a {
 }
 .site-foot h3 {
   font-family: var(--serif);
-  font-size: 28px;
+  font-size: 24px;
   color: #fff;
   margin: 0 0 10px;
+  line-height: 1.25;
 }
 .site-foot h4 {
   color: var(--gold-2);
@@ -1198,14 +1207,15 @@ table a {
 .mosaic__cap {
   position: absolute;
   inset: auto 0 0;
-  padding: 28px;
-  background: linear-gradient(180deg, transparent, rgba(12, 27, 51, 0.88));
+  padding: 110px 32px 28px;
+  background: linear-gradient(180deg, rgba(12, 27, 51, 0) 0%, rgba(12, 27, 51, 0.6) 40%, rgba(12, 27, 51, 0.92) 100%);
 }
 .mosaic__cap h3 {
   margin: 6px 0 4px;
   font-family: var(--serif);
-  font-size: 36px;
+  font-size: 32px;
   font-weight: 600;
+  line-height: 1.15;
 }
 .mosaic__cap p { margin: 0; color: #e6e1d6; }
 .mosaic__cap strong {
@@ -1236,7 +1246,7 @@ table a {
 }
 .district--photo {
   position: relative;
-  min-height: 180px;
+  min-height: 260px;
   padding: 0;
   overflow: hidden;
   border: 0;
@@ -1252,7 +1262,7 @@ table a {
 .district__shade {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(12,27,51,.15), rgba(12,27,51,.78));
+  background: linear-gradient(180deg, rgba(12, 27, 51, 0.05) 30%, rgba(12, 27, 51, 0.85) 100%);
 }
 .district__txt {
   position: relative;
@@ -1261,7 +1271,7 @@ table a {
   flex-direction: column;
   justify-content: flex-end;
   gap: 4px;
-  min-height: 180px;
+  min-height: 260px;
   padding: 18px;
 }
 .district--photo strong { color: #fff; }
@@ -1281,8 +1291,8 @@ table a {
 }
 .quote-card p {
   font-family: var(--serif);
-  font-size: 22px;
-  line-height: 1.35;
+  font-size: 19px;
+  line-height: 1.5;
   margin: 0 0 18px;
 }
 .quote-card footer { display: flex; flex-direction: column; gap: 2px; }
@@ -1342,10 +1352,10 @@ table a {
 }
 .page-banner h1 {
   font-family: var(--serif);
-  font-size: clamp(36px, 5vw, 56px);
+  font-size: clamp(32px, 4.2vw, 48px);
   font-weight: 600;
   margin: 0 0 10px;
-  line-height: 1.08;
+  line-height: 1.15;
 }
 .page-banner p { color: #e8e2d6; margin: 0; max-width: 560px; }
 .result-bar {
@@ -1413,17 +1423,9 @@ table a {
   min-height: 200px;
 }
 .map-frame iframe { width: 100%; height: 200px; border: 0; display: block; }
-.site-foot__grid--4 { grid-template-columns: 1.4fr 1fr 1fr 1.1fr; }
-.foot-brief { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-.foot-brief input {
-  flex: 1;
-  min-width: 140px;
-  border: 1px solid rgba(196, 163, 106, 0.28);
-  background: rgba(255,255,255,.06);
-  color: #fff;
-  border-radius: 10px;
-  padding: 10px 12px;
-}
+.site-foot__grid--5 { grid-template-columns: 1.5fr 1.2fr 1fr 1fr 1fr; }
+.site-foot nav a { color: #d5dbe4; }
+.site-foot__copy a { display: inline; margin: 0; }
 .cta-band--flush { margin: 48px 0 0; }
 .site-topbar__mid { opacity: 0.92; }
 
@@ -1434,10 +1436,10 @@ table a {
 .article { max-width: 760px; }
 .article h1 {
   font-family: var(--serif);
-  font-size: clamp(32px, 4vw, 48px);
+  font-size: clamp(30px, 3.6vw, 42px);
   font-weight: 600;
   margin: 8px 0 12px;
-  line-height: 1.12;
+  line-height: 1.18;
 }
 .article p { font-size: 16px; line-height: 1.7; }
 .article__hero {
@@ -1641,15 +1643,16 @@ table a {
   padding: 48px 24px;
   background:
     linear-gradient(180deg, rgba(12, 27, 51, 0.72), rgba(12, 27, 51, 0.88)),
-    url("/properties/office.jpg") center/cover;
+    url("/properties/van-phong.jpg") center/cover;
   color: #fff;
 }
 .blank-page h1 {
   margin: 8px 0 12px;
   font-family: var(--serif);
-  font-size: clamp(36px, 5vw, 56px);
+  font-size: clamp(32px, 4.2vw, 48px);
   font-weight: 600;
   max-width: 640px;
+  line-height: 1.15;
 }
 .blank-page .muted { color: #d9d3c6; max-width: 480px; }
 
@@ -2099,9 +2102,9 @@ table a {
     align-items: flex-start;
   }
   .hero-search, .listing-filter, .split, .detail-hero, .district-grid, .step-grid, .site-foot__grid,
-  .mosaic, .service-grid, .quote-grid, .insight-row, .insight-grid, .stat-row, .team-grid, .site-foot__grid--4,
+  .mosaic, .service-grid, .quote-grid, .insight-row, .insight-grid, .stat-row, .team-grid,
   .quick-grid, .access-legend, .login-roles, .policy-grid, .district-grid--page,
-  .press-grid, .process-rail, .advisor-row, .prop-row, .map-layout, .quote-grid--page {
+  .press-grid, .process-rail, .advisor-row, .prop-row, .map-layout, .quote-grid--page, .site-foot__grid--5 {
     grid-template-columns: 1fr;
   }
   .prop-row__side { align-items: flex-start; text-align: left; }
@@ -2130,4 +2133,18 @@ table a {
   }
   .site-nav nav.open { display: flex; }
   .site-nav nav a { padding: 8px 4px; }
+}
+
+/* Điện thoại: giữ số liệu hero một hàng, thanh liên hệ không ngắt dòng, tiêu đề mục xếp dọc */
+@media (max-width: 640px) {
+  .hero-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .hero-stats strong { font-size: 24px; }
+  .hero-stats span { font-size: 9.5px; letter-spacing: 0.08em; }
+  .desk-bar a { font-size: 10.5px; letter-spacing: 0.02em; padding: 12px 4px; white-space: nowrap; }
+  .press-strip { gap: 10px 18px; padding: 14px 16px; }
+  .press-strip > span { flex-basis: 100%; }
+  .press-strip strong { font-size: 15px; }
+  .section-head { flex-direction: column; align-items: flex-start; }
+  .mosaic__cap { padding: 80px 20px 20px; }
+  .mosaic__cap h3 { font-size: 26px; }
 }
