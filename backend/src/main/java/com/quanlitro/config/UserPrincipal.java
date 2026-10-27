@@ -39,7 +39,7 @@ public class UserPrincipal implements UserDetails {
                 t.getMatKhauHash(),
                 t.getHoTen(),
                 t.getKhachThue() != null ? t.getKhachThue().getId() : null,
-                "khoa".equals(t.getTrangThai()),
+                !"hoat_dong".equals(t.getTrangThai()),
                 quyen);
     }
 

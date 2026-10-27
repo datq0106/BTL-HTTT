@@ -5,6 +5,8 @@ import com.quanlitro.dto.auth.NguoiDungResponse;
 import com.quanlitro.dto.taikhoan.DoiMatKhauRequest;
 import com.quanlitro.service.TaiKhoanService;
 import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,7 +34,10 @@ public class AuthController {
     @PostMapping("/doi-mat-khau")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void doiMatKhau(@AuthenticationPrincipal UserPrincipal nguoiDung,
-                           @Valid @RequestBody DoiMatKhauRequest req) {
+                           @Valid @RequestBody DoiMatKhauRequest req,
+                           HttpServletRequest request) {
         taiKhoanService.doiMatKhau(nguoiDung.getId(), req);
+        HttpSession session = request.getSession(false);
+        if (session != null) session.invalidate();
     }
 }

@@ -23,6 +23,16 @@ api.interceptors.request.use((config) => {
   return config
 })
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error?.response?.status === 401) {
+      window.dispatchEvent(new Event('auth_expired'))
+    }
+    return Promise.reject(error)
+  },
+)
+
 export function thongBaoLoi(err) {
   const data = err?.response?.data
   if (typeof data?.thongBao === 'string') return data.thongBao
@@ -30,6 +40,6 @@ export function thongBaoLoi(err) {
     const d = data.chiTiet[0]
     return d.truong ? `${d.truong}: ${d.thongBao}` : d.thongBao
   }
-  if (err?.message === 'Network Error') return 'Không kết nối được máy chủ. Kiểm tra backend cổng 8080.'
+  if (err?.message === 'Network Error') return 'Không kết nối được máy chủ. Vui lòng kiểm tra kết nối và thử lại.'
   return 'Có lỗi xảy ra, vui lòng thử lại.'
 }

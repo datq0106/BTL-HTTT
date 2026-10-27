@@ -24,9 +24,16 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
+  useEffect(() => {
+    const hetPhien = () => setUser(null)
+    window.addEventListener('auth_expired', hetPhien)
+    return () => window.removeEventListener('auth_expired', hetPhien)
+  }, [])
+
   const dangNhap = useCallback(async (tenDangNhap, matKhau) => {
     await AuthApi.me().catch(() => {})
-    const { data } = await AuthApi.login(tenDangNhap, matKhau)
+    await AuthApi.login(tenDangNhap, matKhau)
+    const { data } = await AuthApi.me()
     setUser(data)
     return data
   }, [])

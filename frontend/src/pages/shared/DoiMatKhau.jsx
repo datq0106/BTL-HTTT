@@ -1,12 +1,16 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { AuthApi } from '../../api/services'
 import { thongBaoLoi } from '../../api/client'
 import { useToast } from '../../context/ToastContext'
 import { PageHead } from '../../components/ui'
 import { Icon } from '../../components/icons'
+import { useAuth } from '../../context/AuthContext'
 
 export default function DoiMatKhau() {
   const toast = useToast()
+  const navigate = useNavigate()
+  const { dangXuat } = useAuth()
   const [form, setForm] = useState({ matKhauCu: '', matKhauMoi: '', xacNhanMatKhauMoi: '' })
   const [loi, setLoi] = useState('')
   const [dangGui, setDangGui] = useState(false)
@@ -21,8 +25,10 @@ export default function DoiMatKhau() {
     setDangGui(true)
     try {
       await AuthApi.doiMatKhau(form)
-      toast.thanhCong('Đã đổi mật khẩu')
+      await dangXuat()
+      toast.thanhCong('Đã đổi mật khẩu. Vui lòng đăng nhập lại.')
       setForm({ matKhauCu: '', matKhauMoi: '', xacNhanMatKhauMoi: '' })
+      navigate('/dang-nhap', { replace: true })
     } catch (err) {
       setLoi(thongBaoLoi(err))
     } finally {
