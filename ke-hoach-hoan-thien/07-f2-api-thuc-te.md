@@ -6,7 +6,7 @@ Trạng thái 27/10/2026: migration V2 đã chạy trên MySQL 8.4 local; `scrip
 
 | Phương thức | Endpoint | Dữ liệu chính |
 | --- | --- | --- |
-| POST | `/api/public/yeu-cau` | `chuDe` (`lien-he`, `brief`, `chu-nha`, `quan-tam`), `tieuDe`, `hoTen`, `sdt`, `email?`, `maPhong?`, `listingKey?`, `noiDung`; trả `maTraCuu`, `trangThai` |
+| POST | `/api/public/yeu-cau` | `chuDe` (`lien-he`, `brief`, `chu-nha`, `quan-tam`, `ung-tuyen`), `tieuDe`, `hoTen`, `sdt`, `email?`, `maPhong?`, `listingKey?`, `noiDung`; trả `maTraCuu`, `trangThai` |
 | POST | `/api/public/lich-xem` | `listingKey`, `maPhong?`, `hoTen`, `sdt`, `email?`, `khungDeNghi` dạng giờ Việt Nam không kèm offset, `ghiChu?`; trả `maTraCuu`, `trangThai` |
 | GET | `/api/public/xac-nhan/{ma}` | Mã, loại, trạng thái, khung đề nghị/xác nhận nếu có; không trả thông tin liên hệ |
 

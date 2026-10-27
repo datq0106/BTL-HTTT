@@ -33,6 +33,14 @@ Sau khi stack lên, chạy `python scripts/seed_demo.py` (cần Node để đọ
 | `quanly` | `Demo@2026` | Quản lý |
 | `cudan1`, `cudan2` | `Demo@2026` | Cư dân có hợp đồng P101, P201 |
 
+### Kịch bản demo đồng bộ
+
+1. Website: mở `/bat-dong-san`, thấy RIVER-604 "Đang thuê", không đặt lịch được; RIVER-1208 còn nhận lịch.
+2. Đặt lịch xem RIVER-1208 ở `/dat-lich` → nhận mã tra cứu. Đăng nhập `quanly`, mở "Yêu cầu & Hỗ trợ", xác nhận lịch → trang xác nhận của khách đổi trạng thái.
+3. `quanly` lập hợp đồng cho phòng RIVER-1208 → tải lại website, căn chuyển "Đang thuê", tỷ lệ lấp đầy ở trang chủ tăng.
+4. Mở "Hóa đơn", lập hóa đơn tháng cho hợp đồng mới. Đăng nhập cư dân thấy thông báo và hóa đơn; quản lý ghi nhận đã thu → công nợ trên dashboard giảm.
+5. Phòng chưa lên website (vd. P102): mở chi tiết phòng → "Đăng tin" → tải ảnh → xuất bản → tin xuất hiện ở trang công khai.
+
 ## Chạy FE/BE riêng để phát triển
 
 BE cần một MySQL có schema do Flyway tạo, username/password qua biến môi trường `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`; lần đầu cần `NHATRO_ADMIN_INITIAL_PASSWORD` (ít nhất 12 ký tự). Ví dụ chạy BE khi đã có DB local:

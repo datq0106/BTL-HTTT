@@ -71,6 +71,8 @@ Mỗi mã việc là một gói có thể nghiệm thu độc lập. Thứ tự 
 
 ### F7 — Tuyển dụng và nội dung website (P1/P2, 1–3 tuần; sau F0)
 
+**Tiến độ 28/10/2026 (bản demo):** hai form ứng tuyển gửi qua `/api/public/yeu-cau` với chủ đề `ung-tuyen`, trả mã tra cứu; nhân viên xem ở màn yêu cầu. Không làm upload CV và CMS; các trang giới thiệu giữ nội dung tĩnh trong `data/listings.js`.
+
 - **Bắt buộc để form dùng được:** `CareersPage` và `CareerDetailPage` gửi hồ sơ qua BE, trả mã, validate và hiển thị lỗi; staff có nơi xem/xử lý. Nếu cần CV, thêm upload riêng có kiểm soát loại/size/quyền.
 - **Nếu nội dung cần cập nhật không deploy:** CMS cho bài thị trường, đội ngũ, dịch vụ giới thiệu, tuyển dụng, FAQ, lời khách, chính sách, báo chí; nháp/xuất bản và slug. Không nhập dữ liệu mẫu vào production như nội dung thật.
 - **Nếu nội dung ít đổi:** duyệt và giữ các trang thuần giới thiệu tĩnh; kiểm tra link, ảnh, số điện thoại, địa chỉ, tên thương hiệu, ngày hiệu lực chính sách. Các trang tĩnh vẫn được xem là hoạt động nếu nội dung đúng.

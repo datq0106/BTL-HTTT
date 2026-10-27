@@ -5,7 +5,7 @@ Kế hoạch có thể bắt đầu bằng kiểm kê, bảo mật và test; cá
 | ID | Cần quyết định | Mặc định đề xuất | Ảnh hưởng |
 | --- | --- | --- | --- |
 | Q1 | Một nhà trọ hay nhiều tòa nhà/bất động sản? | Nhiều bất động sản vì website có nhiều khu vực và căn | Bảng địa điểm, FK phòng, lọc tin, báo cáo, quyền nhân viên theo tòa. |
-| Q2 | Tin công khai gắn 1:1 với phòng hay một tin có nhiều căn tương tự? | Một tin gắn một phòng; giá/ảnh/địa chỉ xuất bản riêng | Model tin đăng, slug, tình trạng còn nhận lịch. |
+| Q2 | Tin công khai gắn 1:1 với phòng hay một tin có nhiều căn tương tự? | **Đã chốt 28/10/2026:** một tin gắn một phòng; giá/ảnh/địa chỉ xuất bản riêng | Model tin đăng, slug, tình trạng còn nhận lịch. |
 | Q3 | Phòng đang thuê có được hiển thị và nhận lịch cho kỳ sau? | Hiển thị tùy chọn, không nhận lịch nếu chưa có ngày sẵn sàng | Bộ lọc public và luồng đặt lịch. |
 | Q4 | Người ở cùng có tài khoản cư dân và được xem hợp đồng/hóa đơn không? | Có tài khoản riêng; chỉ xem phần hồ sơ được ủy quyền | Query `/api/khach/*`, bảo mật dữ liệu tiền/tài liệu. |
 | Q5 | Chu kỳ thuê và lập hóa đơn? Ngày bắt đầu giữa tháng tính thế nào? | Hàng tháng; phần tháng đầu/cuối theo quy tắc cần chốt | Công thức tiền, hạn trả, công nợ, test. |
