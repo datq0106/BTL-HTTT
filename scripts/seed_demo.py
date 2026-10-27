@@ -1,7 +1,8 @@
 """Seed demo data for the coursework presentation on the local Compose stack.
 
-Creates services, room types, rooms, tenants, demo accounts, contracts, the public
-areas/listings from frontend/src/data/listings.js (with images) and a few requests.
+Creates services, room types, rooms, tenants, demo accounts, contracts, two months of
+invoices, the public areas/listings from frontend/src/data/listings.js (with images)
+and a few requests.
 Safe to run again: existing records are kept and skipped.
 """
 
@@ -145,6 +146,26 @@ def seed_tin_dang(admin, data):
         admin.expect(f"/api/tin-dang/{tin['dbId']}/xuat-ban", "POST")
 
 
+def seed_hoa_don(admin):
+    """Kỳ trước đã thu, kỳ này chưa thu, cho mỗi hợp đồng đang hiệu lực."""
+    if admin.expect("/api/hoa-don?kichThuoc=1")["tongSoBanGhi"]:
+        return
+    dau_thang = date.today().replace(day=1)
+    ky_nay, ky_truoc = dau_thang.strftime("%Y-%m"), (dau_thang - timedelta(days=1)).strftime("%Y-%m")
+    for i, h in enumerate(admin.expect("/api/hop-dong?trangThai=hieu_luc&kichThuoc=100")["noiDung"]):
+        chi_so = {"Điện": 1000 + 300 * i, "Nước": 50 + 10 * i}
+        for ky, tieu_thu in ((ky_truoc, {"Điện": 110 + 10 * i, "Nước": 5}), (ky_nay, {"Điện": 125 + 10 * i, "Nước": 6})):
+            goi_y = admin.expect(f"/api/hoa-don/goi-y?hopDongId={h['id']}&ky={ky}")
+            dong = [d for d in goi_y["dong"] if d["theoChiSo"]]
+            body = [{"dichVuId": d["dichVuId"], "chiSoCu": chi_so[d["noiDung"]] if goi_y["kyDau"] else None,
+                     "chiSoMoi": chi_so[d["noiDung"]] + tieu_thu[d["noiDung"]]} for d in dong]
+            hd = admin.expect("/api/hoa-don", "POST", {"hopDongId": h["id"], "ky": ky, "chiSo": body}, status=201)
+            for d in dong:
+                chi_so[d["noiDung"]] += tieu_thu[d["noiDung"]]
+            if ky == ky_truoc:
+                admin.expect(f"/api/hoa-don/{hd['id']}/thanh-toan", "POST", {"phuongThuc": "chuyen_khoan"})
+
+
 def seed_yeu_cau(admin, data):
     if admin.expect("/api/yeu-cau/thong-ke")["tong"]:
         return
@@ -175,6 +196,7 @@ def main():
     data = doc_listings()
     seed_van_hanh(admin)
     seed_tin_dang(admin, data)
+    seed_hoa_don(admin)
     seed_yeu_cau(admin, data)
     print(f"OK: dữ liệu demo sẵn sàng tại http://localhost:{SETTINGS.get('APP_PORT', '8088')}")
     print(f"  admin / (APP_ADMIN_PASSWORD trong .env)")
