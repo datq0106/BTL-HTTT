@@ -18,6 +18,7 @@ public class PublicTinDangController {
     private final TinDangService service;
     public PublicTinDangController(TinDangService service) { this.service = service; }
 
+    @GetMapping("/thong-ke") public TinDangDtos.ThongKe thongKe() { return service.thongKeCongKhai(); }
     @GetMapping("/khu-vuc") public List<TinDangDtos.KhuVuc> khuVuc() { return service.khuVucCongKhai(); }
     @GetMapping("/khu-vuc/{slug}") public TinDangDtos.KhuVuc chiTietKhu(@PathVariable String slug) {
         return service.chiTietKhu(slug);

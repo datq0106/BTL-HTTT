@@ -23,7 +23,7 @@ import java.util.*;
 
 @Service
 public class YeuCauService {
-    private static final Set<String> CHU_DE_CONG_KHAI = Set.of("lien-he", "brief", "chu-nha", "quan-tam");
+    private static final Set<String> CHU_DE_CONG_KHAI = Set.of("lien-he", "brief", "chu-nha", "quan-tam", "ung-tuyen");
     private static final Set<String> CHU_DE_CU_DAN = Set.of("bao-tri", "gia-han", "tam-tru", "nguoi-o-cung", "khac");
     private static final Set<String> TRANG_THAI = Set.of("cho_xu_ly", "dang_xu_ly", "da_xu_ly", "huy");
     private static final Set<String> MUC_DO = Set.of("binh_thuong", "can_gap", "khan_cap");

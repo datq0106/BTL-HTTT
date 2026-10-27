@@ -37,7 +37,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/public/yeu-cau", "/api/public/lich-xem").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/public/xac-nhan/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/public/tin-dang", "/api/public/tin-dang/**",
-                                "/api/public/khu-vuc", "/api/public/khu-vuc/**").permitAll()
+                                "/api/public/khu-vuc", "/api/public/khu-vuc/**", "/api/public/thong-ke").permitAll()
                         .requestMatchers("/api/auth/**").authenticated()
 
                         .requestMatchers("/api/tai-khoan/**").hasRole("ADMIN")

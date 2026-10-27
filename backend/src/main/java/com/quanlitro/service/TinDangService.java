@@ -147,9 +147,11 @@ public class TinDangService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<TinDangDtos.TinDang> danhSachNoiBo(String q, String trangThai, int trang, int kichThuoc) {
+    public PageResponse<TinDangDtos.TinDang> danhSachNoiBo(String q, String trangThai, Integer phongId,
+                                                         int trang, int kichThuoc) {
         Specification<TinDang> spec = (root, query, cb) -> {
             List<Predicate> p = new ArrayList<>();
+            if (phongId != null) p.add(cb.equal(root.get("phong").get("id"), phongId));
             if (coGiaTri(trangThai)) p.add(cb.equal(root.get("trangThai"), trangThai));
             if (coGiaTri(q)) {
                 String like = "%" + q.trim().toLowerCase(Locale.ROOT) + "%";
@@ -174,6 +176,8 @@ public class TinDangService {
         BatDongSan b = batDongSanRepo.findById(body.batDongSanId())
                 .orElseThrow(() -> ResourceNotFoundException.khongTim("bất động sản", body.batDongSanId()));
         TinDang t = id == null ? new TinDang() : layTin(id);
+        if (body.phongId() != null && tinDangRepo.existsByPhong_IdAndIdNot(body.phongId(), id == null ? -1L : id))
+            throw new BusinessException("Phòng này đã có tin đăng khác");
         if (id != null && "xuat_ban".equals(t.getTrangThai()))
             throw new BusinessException("Ẩn tin trước khi sửa nội dung");
         t.setSlug(body.slug());
@@ -272,6 +276,17 @@ public class TinDangService {
 
     @Transactional(readOnly = true)
     public Path anhNoiBo(Long id, Long anhId) { return duongDanAnh(layAnh(id, anhId)); }
+
+    @Transactional(readOnly = true)
+    public TinDangDtos.ThongKe thongKeCongKhai() {
+        List<TinDang> tin = tinDangRepo.findByTrangThai("xuat_ban").stream()
+                .filter(t -> Boolean.TRUE.equals(t.getBatDongSan().getKhuVuc().getHienThi())).toList();
+        long nhanLich = tin.stream().filter(t -> "trong".equals(trangThaiCan(t))).count();
+        long tongPhong = phongRepo.countByHienThiTrue();
+        long dangThue = phongRepo.countByTrangThaiAndHienThiTrue("dang_thue");
+        int tyLe = tongPhong == 0 ? 0 : (int) Math.round(dangThue * 100.0 / tongPhong);
+        return new TinDangDtos.ThongKe(tin.size(), nhanLich, khuVucRepo.findByHienThiTrueOrderByTenAsc().size(), tyLe);
+    }
 
     @Transactional(readOnly = true)
     public boolean duocDatLich(String slug) {

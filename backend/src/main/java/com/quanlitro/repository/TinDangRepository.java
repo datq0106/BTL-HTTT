@@ -12,4 +12,6 @@ public interface TinDangRepository extends JpaRepository<TinDang, Long>, JpaSpec
     boolean existsByMa(String ma);
     long countByBatDongSan_KhuVuc_SlugAndTrangThai(String slug, String trangThai);
     List<TinDang> findByBatDongSan_KhuVuc_SlugAndTrangThai(String slug, String trangThai);
+    List<TinDang> findByTrangThai(String trangThai);
+    boolean existsByPhong_IdAndIdNot(Integer phongId, Long id);
 }

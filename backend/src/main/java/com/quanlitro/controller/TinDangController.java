@@ -18,9 +18,9 @@ public class TinDangController {
     public TinDangController(TinDangService service) { this.service = service; }
 
     @GetMapping public PageResponse<TinDangDtos.TinDang> danhSach(@RequestParam(required = false) String q,
-            @RequestParam(required = false) String trangThai,
+            @RequestParam(required = false) String trangThai, @RequestParam(required = false) Integer phongId,
             @RequestParam(defaultValue = "0") int trang, @RequestParam(defaultValue = "10") int kichThuoc) {
-        return service.danhSachNoiBo(q, trangThai, trang, kichThuoc);
+        return service.danhSachNoiBo(q, trangThai, phongId, trang, kichThuoc);
     }
     @GetMapping("/{id}") public TinDangDtos.TinDang chiTiet(@PathVariable Long id) { return service.chiTietNoiBo(id); }
     @PostMapping @ResponseStatus(HttpStatus.CREATED)

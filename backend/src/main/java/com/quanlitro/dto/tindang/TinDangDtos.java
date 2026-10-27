@@ -47,6 +47,7 @@ public final class TinDangDtos {
             @NotBlank @Size(max = 10000) String moTa,
             Boolean noiBat,
             String trangThaiCan) {}
+    public record ThongKe(long soTin, long soCanTrong, long soKhuVuc, int tyLeLapDay) {}
     public record Anh(Long id, String url, int thuTu, String altText) {}
     public record TinDang(String id, Long dbId, String ma, String tieuDe, String khuVuc,
                           String diaChi, String loai, Integer phongNgu, Integer phongTam,
