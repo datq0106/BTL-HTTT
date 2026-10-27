@@ -1,10 +1,9 @@
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { ThongBaoApi } from '../api/services'
+import { ThongBaoApi, YeuCauApi } from '../api/services'
 import { nhan } from '../utils/format'
 import { Icon } from './icons'
-import { getYeuCauList } from '../utils/yeuCauStore'
 
 const MENU_NHAN_VIEN = [
   { to: '/quan-ly', label: 'Tổng quan', end: true, icon: 'overview' },
@@ -49,27 +48,51 @@ export default function Layout() {
   const [chuaDoc, setChuaDoc] = useState(0)
   const [soYeuCauCho, setSoYeuCauCho] = useState(0)
   const [moMenu, setMoMenu] = useState(false)
+  const userId = user?.id
 
   useEffect(() => {
-    ThongBaoApi.chuaDoc()
-      .then(({ data }) => setChuaDoc(data.soChuaDoc || 0))
-      .catch(() => {})
-
+    if (!laNhanVien) return
+    let active = true
     function capNhatSoYeuCau() {
-      try {
-        const ds = getYeuCauList()
-        const cho = ds.filter((x) => x.trangThai === 'cho_xu_ly').length
-        setSoYeuCauCho(cho)
-      } catch {}
+      YeuCauApi.thongKe().then(({ data }) => {
+        if (active) setSoYeuCauCho(data.choXuLy || 0)
+      }).catch(() => { if (active) setSoYeuCauCho(0) })
     }
     capNhatSoYeuCau()
     window.addEventListener('yeucau_updated', capNhatSoYeuCau)
-    window.addEventListener('storage', capNhatSoYeuCau)
+    window.addEventListener('focus', capNhatSoYeuCau)
+    const timer = window.setInterval(capNhatSoYeuCau, 60000)
     return () => {
+      active = false
       window.removeEventListener('yeucau_updated', capNhatSoYeuCau)
-      window.removeEventListener('storage', capNhatSoYeuCau)
+      window.removeEventListener('focus', capNhatSoYeuCau)
+      window.clearInterval(timer)
     }
-  }, [location.pathname])
+  }, [location.pathname, laNhanVien])
+
+  useEffect(() => {
+    if (!userId) return
+    let active = true
+    function capNhatThongBao() {
+      ThongBaoApi.chuaDoc()
+        .then(({ data }) => {
+          if (active) setChuaDoc(data.soChuaDoc || 0)
+        })
+        .catch(() => {
+          if (active) setChuaDoc(0)
+        })
+    }
+    capNhatThongBao()
+    window.addEventListener('thongbao_updated', capNhatThongBao)
+    window.addEventListener('focus', capNhatThongBao)
+    const timer = window.setInterval(capNhatThongBao, 60000)
+    return () => {
+      active = false
+      window.removeEventListener('thongbao_updated', capNhatThongBao)
+      window.removeEventListener('focus', capNhatThongBao)
+      window.clearInterval(timer)
+    }
+  }, [userId, location.pathname])
 
   const [kicker, title] = useMemo(() => {
     const exact = TITLES[location.pathname]

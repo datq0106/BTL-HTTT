@@ -30,6 +30,14 @@ export function ngayGio(value) {
   return d.toLocaleString('vi-VN', { hour12: false })
 }
 
+export function ngayGioVietNam(value) {
+  if (!value) return '—'
+  const raw = String(value).replace(/(\.\d{3})\d+/, '$1')
+  const d = new Date(/[zZ]$|[+-]\d{2}:\d{2}$/.test(raw) ? raw : `${raw}+07:00`)
+  if (Number.isNaN(d.getTime())) return raw
+  return d.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false })
+}
+
 export const NHAN = {
   phong: {
     trong: 'Trống',

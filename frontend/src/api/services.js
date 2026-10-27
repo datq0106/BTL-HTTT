@@ -81,4 +81,37 @@ export const ThongBaoApi = {
 
 export const KhachApi = {
   hopDong: () => api.get('/khach/hop-dong'),
+  yeuCau: (params) => api.get('/khach/yeu-cau', { params }),
+  chiTietYeuCau: (id) => api.get(`/khach/yeu-cau/${id}`),
+  guiYeuCau: (body) => api.post('/khach/yeu-cau', body),
+}
+
+async function chuanBiCsrfCongKhai() {
+  if (!document.cookie.split('; ').some((x) => x.startsWith('XSRF-TOKEN='))) {
+    await api.get('/auth/me').catch(() => {})
+  }
+}
+
+export const PublicYeuCauApi = {
+  gui: async (body) => {
+    await chuanBiCsrfCongKhai()
+    return api.post('/public/yeu-cau', body)
+  },
+  datLich: async (body) => {
+    await chuanBiCsrfCongKhai()
+    return api.post('/public/lich-xem', body)
+  },
+  traCuu: (ma) => api.get(`/public/xac-nhan/${encodeURIComponent(ma)}`),
+}
+
+export const YeuCauApi = {
+  danhSach: (params) => api.get('/yeu-cau', { params }),
+  thongKe: () => api.get('/yeu-cau/thong-ke'),
+  nhanVien: () => api.get('/yeu-cau/nhan-vien'),
+  chiTiet: (id) => api.get(`/yeu-cau/${id}`),
+  tao: (body) => api.post('/yeu-cau', body),
+  xuLy: (id, body) => api.patch(`/yeu-cau/${id}`, body),
+  xacNhanLich: (id, khungXacNhan) => api.patch(`/yeu-cau/${id}/lich-xem/xac-nhan`, { khungXacNhan }),
+  hoanThanhLich: (id) => api.patch(`/yeu-cau/${id}/lich-xem/hoan-thanh`),
+  huyLich: (id) => api.patch(`/yeu-cau/${id}/lich-xem/huy`),
 }

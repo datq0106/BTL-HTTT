@@ -1,204 +1,116 @@
-import { useState, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { PageHead } from '../../components/ui'
-import { Icon } from '../../components/icons'
 import { useToast } from '../../context/ToastContext'
-import { useAuth } from '../../context/AuthContext'
-import { VAN_PHONG, DOI_NGU } from '../../data/listings'
 import { KhachApi } from '../../api/services'
-import { getYeuCauList, themYeuCau } from '../../utils/yeuCauStore'
+import { thongBaoLoi } from '../../api/client'
+import { ngayGioVietNam } from '../../utils/format'
+
+const TRANG_THAI = { cho_xu_ly: 'Chờ xử lý', dang_xu_ly: 'Đang xử lý', da_xu_ly: 'Đã xử lý', huy: 'Đã hủy' }
 
 export default function ConciergePage() {
   const toast = useToast()
-  const { user } = useAuth()
-  const [hd, setHd] = useState(null)
   const [form, setForm] = useState({ chuDe: 'bao-tri', mucDo: 'binh_thuong', noiDung: '' })
-  const [lichSu, setLichSu] = useState([])
+  const [items, setItems] = useState([])
+  const [trang, setTrang] = useState(0)
+  const [tongTrang, setTongTrang] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [sending, setSending] = useState(false)
+  const [error, setError] = useState('')
+  const [detail, setDetail] = useState(null)
 
-  function loadRequests() {
-    const all = getYeuCauList()
-    // Lọc các yêu cầu của cư dân
-    const myRequests = all.filter((x) => x.nguon === 'cu_dan')
-    setLichSu(myRequests)
-  }
+  const load = useCallback(async () => {
+    setLoading(true)
+    try {
+      const { data } = await KhachApi.yeuCau({ trang, kichThuoc: 10 })
+      setItems(data.noiDung || [])
+      setTongTrang(data.tongSoTrang || 0)
+      setError('')
+    } catch (err) { setError(thongBaoLoi(err)) }
+    finally { setLoading(false) }
+  }, [trang])
 
-  useEffect(() => {
-    loadRequests()
-    const handleUpdate = () => loadRequests()
-    window.addEventListener('yeucau_updated', handleUpdate)
-    KhachApi.hopDong().then((r) => setHd(r.data)).catch(() => {})
-    return () => window.removeEventListener('yeucau_updated', handleUpdate)
-  }, [])
+  useEffect(() => { load() }, [load])
 
-  function gui(e) {
+  async function gui(e) {
     e.preventDefault()
-    if (!form.noiDung.trim()) return
-
-    const tieuDeMap = {
-      'bao-tri': 'Yêu cầu bảo trì / sửa chữa sự cố căn hộ',
-      'gia-han': 'Hỏi thủ tục và thời hạn gia hạn hợp đồng',
-      'tam-tru': 'Hỗ trợ thủ tục đăng ký tạm trú',
-      'nguoi-o-cung': 'Đăng ký bổ sung người ở cùng',
-      'khac': 'Ý kiến đóng góp / Yêu cầu khác',
-    }
-
-    themYeuCau({
-      nguon: 'cu_dan',
-      chuDe: form.chuDe,
-      tieuDe: tieuDeMap[form.chuDe] || 'Yêu cầu cư dân',
-      noiDung: form.noiDung.trim(),
-      mucDo: form.mucDo,
-      hoTen: user?.hoTen || 'Đỗ Quang Đạt',
-      sdt: user?.tenDangNhap === 'admin' ? '0987988807' : (hd?.khachThue?.sdt || '0987988807'),
-      maPhong: hd?.maPhong || 'P.101',
-      email: user?.tenDangNhap + '@gmail.com',
-    })
-
-    toast.thanhCong('Đã gửi yêu cầu tới Ban quản lý tòa nhà!')
-    setForm({ chuDe: 'bao-tri', mucDo: 'binh_thuong', noiDung: '' })
-    loadRequests()
+    if (sending || !form.noiDung.trim()) return
+    setSending(true)
+    try {
+      await KhachApi.guiYeuCau({ ...form, noiDung: form.noiDung.trim() })
+      toast.thanhCong('Đã gửi yêu cầu tới Ban quản lý.')
+      setForm({ chuDe: 'bao-tri', mucDo: 'binh_thuong', noiDung: '' })
+      setTrang(0)
+      await load()
+    } catch (err) { toast.loi(thongBaoLoi(err)) }
+    finally { setSending(false) }
   }
 
-  return (
-    <>
-      <PageHead
-        kicker="Resident Concierge"
-        title="Báo sự cố & Hỗ trợ cư dân"
-        desc={`Tiếp nhận yêu cầu bảo trì kỹ thuật, đăng ký tạm trú và giải đáp thủ tục lưu trú · ${VAN_PHONG.gio}`}
-      />
+  async function xem(id) {
+    try { setDetail((await KhachApi.chiTietYeuCau(id)).data) }
+    catch (err) { toast.loi(thongBaoLoi(err)) }
+  }
 
-      <div className="detail-grid">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          {/* Form gửi yêu cầu */}
-          <form className="card" onSubmit={gui}>
-            <div className="card-head">
-              <div>
-                <p className="page-kicker" style={{ margin: 0 }}>Gửi yêu cầu trực tuyến</p>
-                <h3 style={{ margin: '4px 0 0' }}>Tạo phiếu hỗ trợ mới</h3>
-              </div>
+  return <>
+    <PageHead kicker="Resident Concierge" title="Báo sự cố & Hỗ trợ cư dân"
+      desc="Gửi yêu cầu trực tiếp tới Ban quản lý và theo dõi tiến độ xử lý." />
+    <div className="detail-grid">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <form className="card" onSubmit={gui}>
+          <h3>Tạo phiếu hỗ trợ</h3>
+          <div className="form-grid">
+            <div className="field"><label>Chủ đề</label>
+              <select value={form.chuDe} onChange={(e) => setForm({ ...form, chuDe: e.target.value })}>
+                <option value="bao-tri">Bảo trì / sự cố</option>
+                <option value="gia-han">Gia hạn hợp đồng</option>
+                <option value="tam-tru">Đăng ký tạm trú</option>
+                <option value="nguoi-o-cung">Người ở cùng</option>
+                <option value="khac">Yêu cầu khác</option>
+              </select>
             </div>
-            <p className="muted" style={{ fontSize: 13, marginTop: 4 }}>
-              Kỹ thuật viên và lễ tân tòa nhà trực tiếp theo dõi và xử lý phiếu trong giờ làm việc.
-            </p>
-
-            <div className="form-grid" style={{ marginTop: 16 }}>
-              <div className="field">
-                <label>Phân loại yêu cầu</label>
-                <select value={form.chuDe} onChange={(e) => setForm({ ...form, chuDe: e.target.value })}>
-                  <option value="bao-tri">🛠️ Bảo trì / Sự cố điện nước, thiết bị</option>
-                  <option value="gia-han">📄 Gia hạn hợp đồng thuê</option>
-                  <option value="tam-tru">📑 Thủ tục đăng ký tạm trú (Công an)</option>
-                  <option value="nguoi-o-cung">👥 Bổ sung người ở cùng phòng</option>
-                  <option value="khac">💬 Ý kiến đóng góp & việc khác</option>
-                </select>
-              </div>
-
-              <div className="field">
-                <label>Mức độ khẩn cấp</label>
-                <select value={form.mucDo} onChange={(e) => setForm({ ...form, mucDo: e.target.value })}>
-                  <option value="binh_thuong">Tiêu chuẩn (Trong vòng 24h)</option>
-                  <option value="can_gap">Cần gấp (Trong ngày)</option>
-                  <option value="khan_cap">Khẩn cấp (Rò rỉ nước, mất điện toàn căn)</option>
-                </select>
-              </div>
-
-              <div className="field field--full">
-                <label>Mô tả chi tiết vấn đề</label>
-                <textarea
-                  rows={4}
-                  required
-                  placeholder="Vui lòng nêu rõ vị trí sự cố (ví dụ: bồn rửa bát rò nước, điều hòa không mát...) hoặc nội dung cần ban quản lý hỗ trợ."
-                  value={form.noiDung}
-                  onChange={(e) => setForm({ ...form, noiDung: e.target.value })}
-                />
-              </div>
+            <div className="field"><label>Mức độ</label>
+              <select value={form.mucDo} onChange={(e) => setForm({ ...form, mucDo: e.target.value })}>
+                <option value="binh_thuong">Bình thường</option>
+                <option value="can_gap">Cần gấp</option>
+                <option value="khan_cap">Khẩn cấp</option>
+              </select>
             </div>
-
-            <div className="modal-actions" style={{ marginTop: 16 }}>
-              <button className="btn btn--gold" type="submit">
-                <Icon name="phone" size={14} /> Gửi phiếu tới BQL
-              </button>
+            <div className="field field--full"><label>Nội dung</label>
+              <textarea required rows={5} maxLength={5000} value={form.noiDung}
+                onChange={(e) => setForm({ ...form, noiDung: e.target.value })} />
             </div>
-          </form>
-
-          {/* Lịch sử yêu cầu */}
-          <div className="card">
-            <div className="card-head">
-              <h3>Lịch sử phiếu đã gửi ({lichSu.length})</h3>
-              <span className="muted">Cập nhật thời gian thực</span>
-            </div>
-
-            {!lichSu.length ? (
-              <p className="muted">Bạn chưa gửi yêu cầu hỗ trợ nào.</p>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                {lichSu.map((item) => (
-                  <div
-                    key={item.id}
-                    style={{
-                      padding: '14px 16px',
-                      background: 'var(--paper)',
-                      borderRadius: 'var(--radius)',
-                      border: '1px solid var(--line)',
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                      <strong style={{ fontSize: 15, color: 'var(--navy)' }}>{item.tieuDe}</strong>
-                      <span className={`badge badge--${item.trangThai === 'da_xu_ly' ? 'ok' : 'warn'}`}>
-                        {item.trangThai === 'da_xu_ly' ? 'Đã xử lý' : 'Đang xử lý'}
-                      </span>
-                    </div>
-                    <p style={{ margin: '0 0 8px', fontSize: 14, color: 'var(--ink)' }}>{item.noiDung}</p>
-                    <div style={{ fontSize: 12, color: 'var(--muted)', display: 'flex', justifyContent: 'space-between' }}>
-                      <span>Gửi lúc: {item.thoiGian}</span>
-                      {item.mucDo === 'khan_cap' && <span style={{ color: 'var(--danger)', fontWeight: 600 }}>Khẩn cấp</span>}
-                    </div>
-                    {item.phanHoi && (
-                      <div style={{ marginTop: 8, padding: '8px 12px', background: 'var(--brand-soft)', borderRadius: 8, fontSize: 13 }}>
-                        <span style={{ fontWeight: 600, color: 'var(--navy)' }}>Phản hồi từ BQL: </span>
-                        <span>{item.phanHoi}</span>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
+          </div>
+          <div className="modal-actions"><button className="btn btn--gold" type="submit" disabled={sending}>
+            {sending ? 'Đang gửi...' : 'Gửi yêu cầu'}
+          </button></div>
+        </form>
+        <div className="card">
+          <div className="card-head"><h3>Yêu cầu của tôi</h3><button type="button" className="btn btn--ghost" onClick={load}>Làm mới</button></div>
+          {error && <p role="alert">{error}</p>}
+          {loading ? <p>Đang tải...</p> : items.length === 0 ? <p>Chưa có yêu cầu nào.</p> :
+            items.map((item) => <button type="button" key={item.id} className="card" onClick={() => xem(item.id)}
+              style={{ display: 'block', width: '100%', textAlign: 'left', marginBottom: 12 }}>
+              <strong>#{item.id} · {item.tieuDe}</strong>
+              <p>{item.noiDung}</p>
+              <small>{TRANG_THAI[item.trangThai] || item.trangThai} · {ngayGioVietNam(item.createdAt)}</small>
+              {item.phanHoi && <p><strong>Phản hồi:</strong> {item.phanHoi}</p>}
+            </button>)}
+          <div className="modal-actions">
+            <button type="button" disabled={trang === 0} onClick={() => setTrang(trang - 1)}>Trước</button>
+            <span>Trang {trang + 1}/{Math.max(tongTrang, 1)}</span>
+            <button type="button" disabled={trang + 1 >= tongTrang} onClick={() => setTrang(trang + 1)}>Sau</button>
           </div>
         </div>
-
-        {/* Cột phải: Thông tin liên hệ trực tiếp & Đội ngũ */}
-        <aside style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          <div className="card">
-            <p className="page-kicker">Emergency Contact</p>
-            <h3>Đường dây nóng 24/7</h3>
-            <p className="muted" style={{ fontSize: 13 }}>Trong trường hợp khẩn cấp ngoài giờ hành chính (chập điện, vỡ ống nước):</p>
-
-            <dl className="kv" style={{ marginTop: 14 }}>
-              <dt>Hotline Quản lý</dt><dd><strong>{VAN_PHONG.dienThoai}</strong></dd>
-              <dt>Kỹ thuật tòa nhà</dt><dd><strong>0912 345 678</strong></dd>
-              <dt>Bảo vệ trực ca</dt><dd><strong>024 3822 9999</strong> (24/24)</dd>
-              <dt>Email hỗ trợ</dt><dd>{VAN_PHONG.email}</dd>
-              <dt>Văn phòng trực</dt><dd>{VAN_PHONG.diaChi}</dd>
-              <dt>Giờ làm việc</dt><dd>{VAN_PHONG.gio}</dd>
-            </dl>
-          </div>
-
-          <div className="card">
-            <p className="page-kicker">Resident Desk</p>
-            <h3>Quản lý phụ trách cư dân</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 12 }}>
-              {DOI_NGU.filter((p) => p.chucVu.includes('Resident') || p.chucVu.includes('Leasing')).slice(0, 2).map((p) => (
-                <article key={p.ten} className="mini-advisor">
-                  <img src={p.anh} alt={p.ten} style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover' }} />
-                  <div>
-                    <strong>{p.ten}</strong>
-                    <span style={{ display: 'block', fontSize: 12, color: 'var(--muted)' }}>{p.chucVu}</span>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </aside>
       </div>
-    </>
-  )
+      <aside className="card">
+        <h3>{detail ? `Lịch sử yêu cầu #${detail.id}` : 'Chi tiết yêu cầu'}</h3>
+        {detail ? <>
+          <p>{detail.noiDung}</p><p><strong>Trạng thái:</strong> {TRANG_THAI[detail.trangThai]}</p>
+          {detail.phanHoi && <p><strong>Phản hồi:</strong> {detail.phanHoi}</p>}
+          {(detail.lichSu || []).map((h) => <p key={h.id}>
+            <small>{ngayGioVietNam(h.createdAt)} · {h.hanhDong}</small><br />{h.noiDung}
+          </p>)}
+        </> : <p>Chọn một yêu cầu để xem lịch sử xử lý.</p>}
+      </aside>
+    </div>
+  </>
 }

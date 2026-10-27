@@ -1,535 +1,194 @@
-import { useEffect, useMemo, useState } from 'react'
-import { PageHead, Empty, Modal, Field, Actions } from '../../components/ui'
-import { Icon } from '../../components/icons'
+import { useCallback, useEffect, useState } from 'react'
+import { PageHead } from '../../components/ui'
+import { YeuCauApi } from '../../api/services'
+import { thongBaoLoi } from '../../api/client'
 import { useToast } from '../../context/ToastContext'
-import { useAuth } from '../../context/AuthContext'
-import {
-  getYeuCauList,
-  capNhatYeuCau,
-  themYeuCau,
-  xoaYeuCau,
-} from '../../utils/yeuCauStore'
+import { ngayGioVietNam } from '../../utils/format'
+
+const LABEL = { cho_xu_ly: 'Chờ xử lý', dang_xu_ly: 'Đang xử lý', da_xu_ly: 'Đã xử lý', huy: 'Đã hủy' }
+const EMPTY_FILTER = { keyword: '', nguon: '', chuDe: '', trangThai: '', mucDo: '' }
+const EMPTY_NEW = { chuDe: 'bao-tri', tieuDe: '', hoTen: '', sdt: '', email: '', maPhong: '', mucDo: 'binh_thuong', noiDung: '' }
 
 export default function YeuCauPage() {
   const toast = useToast()
-  const { user } = useAuth()
-  const [ds, setDs] = useState([])
-  const [dangChon, setDangChon] = useState(null)
-  const [taoMoi, setTaoMoi] = useState(false)
-  const [formTao, setFormTao] = useState({
-    hoTen: '',
-    sdt: '',
-    maPhong: '',
-    chuDe: 'bao-tri',
-    mucDo: 'binh_thuong',
-    noiDung: '',
-    nguon: 'cu_dan',
-  })
+  const [filter, setFilter] = useState(EMPTY_FILTER)
+  const [applied, setApplied] = useState(EMPTY_FILTER)
+  const [trang, setTrang] = useState(0)
+  const [page, setPage] = useState({ noiDung: [], tongSoTrang: 0, tongSoBanGhi: 0 })
+  const [stats, setStats] = useState(null)
+  const [staff, setStaff] = useState([])
+  const [detail, setDetail] = useState(null)
+  const [edit, setEdit] = useState({ trangThai: '', phanHoi: '', nguoiXuLyId: '' })
+  const [khungXacNhan, setKhungXacNhan] = useState('')
+  const [create, setCreate] = useState(false)
+  const [draft, setDraft] = useState(EMPTY_NEW)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
 
-  // Bộ lọc
-  const [boLoc, setBoLoc] = useState({
-    keyword: '',
-    nguon: '',
-    chuDe: '',
-    trangThai: '',
-    mucDo: '',
-  })
+  const load = useCallback(async () => {
+    setLoading(true)
+    try {
+      const [ds, thongKe] = await Promise.all([
+        YeuCauApi.danhSach({ ...applied, trang, kichThuoc: 10 }), YeuCauApi.thongKe(),
+      ])
+      setPage(ds.data)
+      setStats(thongKe.data)
+      setError('')
+    } catch (err) { setError(thongBaoLoi(err)) }
+    finally { setLoading(false) }
+  }, [applied, trang])
 
-  function tai() {
-    setDs(getYeuCauList())
-  }
-
+  useEffect(() => { load() }, [load])
   useEffect(() => {
-    tai()
-    const handleUpdate = () => tai()
-    window.addEventListener('yeucau_updated', handleUpdate)
-    window.addEventListener('storage', handleUpdate)
-    return () => {
-      window.removeEventListener('yeucau_updated', handleUpdate)
-      window.removeEventListener('storage', handleUpdate)
-    }
+    YeuCauApi.nhanVien()
+      .then(({ data }) => setStaff(data || []))
+      .catch(() => setStaff([]))
   }, [])
 
-  // Thống kê nhanh
-  const stats = useMemo(() => {
-    const choXuLy = ds.filter((x) => x.trangThai === 'cho_xu_ly').length
-    const dangXuLy = ds.filter((x) => x.trangThai === 'dang_xu_ly').length
-    const khanCap = ds.filter((x) => x.mucDo === 'khan_cap' && x.trangThai !== 'da_xu_ly').length
-    const daXuLy = ds.filter((x) => x.trangThai === 'da_xu_ly').length
-    return { choXuLy, dangXuLy, khanCap, daXuLy, tong: ds.length }
-  }, [ds])
+  async function open(id) {
+    try {
+      const { data } = await YeuCauApi.chiTiet(id)
+      setDetail(data)
+      setEdit({ trangThai: data.trangThai, phanHoi: data.phanHoi || '', nguoiXuLyId: data.nguoiXuLyId || '' })
+      setKhungXacNhan(data.lichXem?.khungXacNhan || data.lichXem?.khungDeNghi || '')
+    } catch (err) { toast.loi(thongBaoLoi(err)) }
+  }
 
-  // Lọc dữ liệu
-  const dsLoc = useMemo(() => {
-    return ds.filter((item) => {
-      if (boLoc.nguon && item.nguon !== boLoc.nguon) return false
-      if (boLoc.chuDe && item.chuDe !== boLoc.chuDe) return false
-      if (boLoc.trangThai && item.trangThai !== boLoc.trangThai) return false
-      if (boLoc.mucDo && item.mucDo !== boLoc.mucDo) return false
-      if (boLoc.keyword) {
-        const kw = boLoc.keyword.toLowerCase()
-        const text = `${item.id} ${item.hoTen} ${item.sdt} ${item.maPhong || ''} ${item.tieuDe} ${item.noiDung}`.toLowerCase()
-        if (!text.includes(kw)) return false
-      }
-      return true
-    })
-  }, [ds, boLoc])
-
-  // Lưu xử lý phiếu
-  function luuXuLy(e) {
+  async function save(e) {
     e.preventDefault()
-    if (!dangChon) return
-    capNhatYeuCau(dangChon.id, {
-      trangThai: dangChon.trangThai,
-      phanHoi: dangChon.phanHoi || '',
-      nguoiXuLy: dangChon.nguoiXuLy || user?.hoTen || 'Ban quản lý',
-    })
-    toast.thanhCong(`Đã cập nhật trạng thái phiếu ${dangChon.id}`)
-    setDangChon(null)
-    tai()
+    if (!detail || saving) return
+    setSaving(true)
+    try {
+      await YeuCauApi.xuLy(detail.id, {
+        trangThai: edit.trangThai,
+        phanHoi: edit.phanHoi,
+        nguoiXuLyId: edit.nguoiXuLyId ? Number(edit.nguoiXuLyId) : 0,
+      })
+      toast.thanhCong('Đã lưu xử lý yêu cầu.')
+      await Promise.all([open(detail.id), load()])
+      window.dispatchEvent(new Event('yeucau_updated'))
+    } catch (err) { toast.loi(thongBaoLoi(err)) }
+    finally { setSaving(false) }
   }
 
-  // Tạo phiếu mới
-  function luuTaoMoi(e) {
+  async function saveNew(e) {
     e.preventDefault()
-    if (!formTao.hoTen.trim() || !formTao.noiDung.trim()) return
-
-    const tieuDeMap = {
-      'bao-tri': 'Yêu cầu bảo trì / sửa chữa căn hộ',
-      'gia-han': 'Hỏi thủ tục và thời hạn gia hạn HĐ',
-      'tam-tru': 'Hỗ trợ thủ tục đăng ký tạm trú',
-      'xem-phong': `Đăng ký xem căn ${formTao.maPhong || ''}`,
-      'khac': 'Yêu cầu hỗ trợ cư dân',
-    }
-
-    themYeuCau({
-      nguon: formTao.nguon,
-      chuDe: formTao.chuDe,
-      tieuDe: tieuDeMap[formTao.chuDe] || 'Yêu cầu hỗ trợ',
-      hoTen: formTao.hoTen.trim(),
-      sdt: formTao.sdt.trim(),
-      maPhong: formTao.maPhong.trim() || undefined,
-      mucDo: formTao.mucDo,
-      noiDung: formTao.noiDung.trim(),
-      nguoiXuLy: user?.hoTen || 'Ban quản lý',
-    })
-
-    toast.thanhCong('Đã tạo phiếu tiếp nhận thành công!')
-    setTaoMoi(false)
-    setFormTao({
-      hoTen: '',
-      sdt: '',
-      maPhong: '',
-      chuDe: 'bao-tri',
-      mucDo: 'binh_thuong',
-      noiDung: '',
-      nguon: 'cu_dan',
-    })
-    tai()
+    if (saving) return
+    setSaving(true)
+    try {
+      const { data } = await YeuCauApi.tao(draft)
+      toast.thanhCong(`Đã tạo yêu cầu #${data.id}`)
+      setCreate(false)
+      setDraft(EMPTY_NEW)
+      setTrang(0)
+      await load()
+      await open(data.id)
+      window.dispatchEvent(new Event('yeucau_updated'))
+    } catch (err) { toast.loi(thongBaoLoi(err)) }
+    finally { setSaving(false) }
   }
 
-  // Xóa phiếu
-  function xuLyXoa(id) {
-    if (window.confirm(`Bạn có chắc muốn xóa phiếu ${id}?`)) {
-      xoaYeuCau(id)
-      toast.thanhCong('Đã xóa phiếu yêu cầu')
-      setDangChon(null)
-      tai()
-    }
+  async function lich(action) {
+    if (!detail || saving) return
+    setSaving(true)
+    try {
+      if (action === 'xac-nhan') await YeuCauApi.xacNhanLich(detail.id, khungXacNhan)
+      if (action === 'hoan-thanh') await YeuCauApi.hoanThanhLich(detail.id)
+      if (action === 'huy') await YeuCauApi.huyLich(detail.id)
+      toast.thanhCong('Đã cập nhật lịch xem.')
+      await Promise.all([open(detail.id), load()])
+      window.dispatchEvent(new Event('yeucau_updated'))
+    } catch (err) { toast.loi(thongBaoLoi(err)) }
+    finally { setSaving(false) }
   }
 
-  return (
-    <>
-      <PageHead
-        kicker="Service & Leasing Desk"
-        title="Yêu cầu khách hàng & Cư dân"
-        desc="Tiếp nhận, phân công và xử lý các phản ánh bảo trì căn hộ, gia hạn hợp đồng và đăng ký xem phòng."
-      >
-        <button className="btn btn--gold" onClick={() => setTaoMoi(true)}>
-          <Icon name="plus" size={14} /> Tiếp nhận phiếu mới
-        </button>
-      </PageHead>
-
-      {/* Thẻ KPI thống kê nhanh */}
-      <div className="quick-grid" style={{ marginBottom: 22 }}>
-        <div
-          className="quick-card"
-          style={{
-            cursor: 'pointer',
-            borderColor: boLoc.trangThai === 'cho_xu_ly' ? 'var(--gold)' : undefined,
-          }}
-          onClick={() => setBoLoc({ ...boLoc, trangThai: boLoc.trangThai === 'cho_xu_ly' ? '' : 'cho_xu_ly' })}
-        >
-          <Icon name="bell" />
-          <strong style={{ color: stats.choXuLy > 0 ? 'var(--warn)' : 'inherit' }}>
-            {stats.choXuLy} phiếu
-          </strong>
-          <span>Chờ tiếp nhận & xử lý</span>
-        </div>
-
-        <div
-          className="quick-card"
-          style={{
-            cursor: 'pointer',
-            borderColor: boLoc.trangThai === 'dang_xu_ly' ? 'var(--gold)' : undefined,
-          }}
-          onClick={() => setBoLoc({ ...boLoc, trangThai: boLoc.trangThai === 'dang_xu_ly' ? '' : 'dang_xu_ly' })}
-        >
-          <Icon name="spark" />
-          <strong>{stats.dangXuLy} phiếu</strong>
-          <span>Đang trong quá trình xử lý</span>
-        </div>
-
-        <div
-          className="quick-card"
-          style={{
-            cursor: 'pointer',
-            borderColor: boLoc.mucDo === 'khan_cap' ? 'var(--danger)' : undefined,
-          }}
-          onClick={() => setBoLoc({ ...boLoc, mucDo: boLoc.mucDo === 'khan_cap' ? '' : 'khan_cap' })}
-        >
-          <Icon name="phone" />
-          <strong style={{ color: stats.khanCap > 0 ? 'var(--danger)' : 'inherit' }}>
-            {stats.khanCap} khẩn cấp
-          </strong>
-          <span>Cần ưu tiên xử lý ngay</span>
-        </div>
-
-        <div
-          className="quick-card"
-          style={{
-            cursor: 'pointer',
-            borderColor: boLoc.trangThai === 'da_xu_ly' ? 'var(--gold)' : undefined,
-          }}
-          onClick={() => setBoLoc({ ...boLoc, trangThai: boLoc.trangThai === 'da_xu_ly' ? '' : 'da_xu_ly' })}
-        >
-          <Icon name="file" />
-          <strong style={{ color: 'var(--ok)' }}>{stats.daXuLy} phiếu</strong>
-          <span>Đã hoàn thành / giải quyết</span>
-        </div>
+  return <>
+    <PageHead kicker="Service desk" title="Yêu cầu & Lịch xem"
+      desc="Tiếp nhận, phân công, phản hồi và theo dõi lịch sử xử lý." />
+    {stats && <div className="stat-row">
+      {[['Chờ xử lý', stats.choXuLy], ['Đang xử lý', stats.dangXuLy], ['Khẩn cấp', stats.khanCap], ['Đã xử lý', stats.daXuLy], ['Tổng', stats.tong]]
+        .map(([label, value]) => <div className="stat-lite" key={label}><strong>{value}</strong><span>{label}</span></div>)}
+    </div>}
+    <div className="card" style={{ marginTop: 20 }}>
+      <form className="form-grid" onSubmit={(e) => { e.preventDefault(); setTrang(0); setApplied({ ...filter }) }}>
+        <div className="field"><label>Tìm kiếm</label><input value={filter.keyword} onChange={(e) => setFilter({ ...filter, keyword: e.target.value })} placeholder="Tên, điện thoại, căn, tiêu đề" /></div>
+        <div className="field"><label>Nguồn</label><select value={filter.nguon} onChange={(e) => setFilter({ ...filter, nguon: e.target.value })}>
+          <option value="">Tất cả</option><option value="khach_ngoai">Khách ngoài</option><option value="cu_dan">Cư dân</option><option value="noi_bo">Nội bộ</option>
+        </select></div>
+        <div className="field"><label>Chủ đề</label><select value={filter.chuDe} onChange={(e) => setFilter({ ...filter, chuDe: e.target.value })}>
+          <option value="">Tất cả</option>{['lien-he', 'brief', 'chu-nha', 'quan-tam', 'xem-phong', 'bao-tri', 'gia-han', 'tam-tru', 'nguoi-o-cung', 'khac'].map((x) => <option key={x} value={x}>{x}</option>)}
+        </select></div>
+        <div className="field"><label>Trạng thái</label><select value={filter.trangThai} onChange={(e) => setFilter({ ...filter, trangThai: e.target.value })}>
+          <option value="">Tất cả</option>{Object.entries(LABEL).map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+        </select></div>
+        <div className="field"><label>Mức độ</label><select value={filter.mucDo} onChange={(e) => setFilter({ ...filter, mucDo: e.target.value })}>
+          <option value="">Tất cả</option><option value="binh_thuong">Bình thường</option><option value="can_gap">Cần gấp</option><option value="khan_cap">Khẩn cấp</option>
+        </select></div>
+        <div className="modal-actions"><button type="submit" className="btn btn--gold">Lọc</button>
+          <button type="button" className="btn btn--ghost" onClick={() => setCreate(!create)}>Tạo phiếu thủ công</button></div>
+      </form>
+    </div>
+    {create && <form className="card" style={{ marginTop: 20 }} onSubmit={saveNew}>
+      <h3>Phiếu tiếp nhận thủ công</h3><div className="form-grid">
+        {[['tieuDe', 'Tiêu đề'], ['hoTen', 'Họ tên'], ['sdt', 'Điện thoại'], ['email', 'Email'], ['maPhong', 'Mã phòng']].map(([key, label]) =>
+          <div className="field" key={key}><label>{label}</label><input required={['tieuDe', 'hoTen', 'sdt'].includes(key)} value={draft[key]}
+            onChange={(e) => setDraft({ ...draft, [key]: e.target.value })} /></div>)}
+        <div className="field"><label>Chủ đề</label><select value={draft.chuDe} onChange={(e) => setDraft({ ...draft, chuDe: e.target.value })}>
+          {['bao-tri', 'gia-han', 'tam-tru', 'nguoi-o-cung', 'khac'].map((x) => <option key={x} value={x}>{x}</option>)}</select></div>
+        <div className="field"><label>Mức độ</label><select value={draft.mucDo} onChange={(e) => setDraft({ ...draft, mucDo: e.target.value })}>
+          <option value="binh_thuong">Bình thường</option><option value="can_gap">Cần gấp</option><option value="khan_cap">Khẩn cấp</option></select></div>
+        <div className="field field--full"><label>Nội dung</label><textarea required rows={4} value={draft.noiDung}
+          onChange={(e) => setDraft({ ...draft, noiDung: e.target.value })} /></div>
+      </div><button className="btn btn--gold" disabled={saving}>Tạo phiếu</button>
+    </form>}
+    <div className="detail-grid" style={{ marginTop: 20 }}>
+      <div className="card"><div className="card-head"><h3>Danh sách ({page.tongSoBanGhi})</h3><button type="button" onClick={load}>Làm mới</button></div>
+        {error && <p role="alert">{error}</p>}
+        {loading ? <p>Đang tải...</p> : (page.noiDung || []).length === 0 ? <p>Không có yêu cầu phù hợp.</p> :
+          page.noiDung.map((x) => <button className="card" type="button" key={x.id} onClick={() => open(x.id)}
+            style={{ display: 'block', width: '100%', textAlign: 'left', marginBottom: 10 }}>
+            <strong>#{x.id} · {x.tieuDe}</strong><p>{x.hoTen} · {x.sdt} · {x.maPhong || x.nguon}</p>
+            <small>{LABEL[x.trangThai] || x.trangThai} · {x.mucDo} · {ngayGioVietNam(x.createdAt)}</small>
+          </button>)}
+        <div className="modal-actions"><button type="button" disabled={trang === 0} onClick={() => setTrang(trang - 1)}>Trước</button>
+          <span>Trang {trang + 1}/{Math.max(page.tongSoTrang, 1)}</span>
+          <button type="button" disabled={trang + 1 >= page.tongSoTrang} onClick={() => setTrang(trang + 1)}>Sau</button></div>
       </div>
-
-      {/* Toolbar bộ lọc */}
-      <div className="toolbar" style={{ flexWrap: 'wrap', gap: 10 }}>
-        <input
-          className="grow"
-          placeholder="Tìm mã phiếu, họ tên, SĐT, căn phòng, nội dung…"
-          value={boLoc.keyword}
-          onChange={(e) => setBoLoc({ ...boLoc, keyword: e.target.value })}
-        />
-
-        <select value={boLoc.nguon} onChange={(e) => setBoLoc({ ...boLoc, nguon: e.target.value })}>
-          <option value="">Mọi nguồn gửi</option>
-          <option value="cu_dan">🏠 Cư dân tòa nhà</option>
-          <option value="khach_ngoai">🌐 Khách xem phòng website</option>
-        </select>
-
-        <select value={boLoc.chuDe} onChange={(e) => setBoLoc({ ...boLoc, chuDe: e.target.value })}>
-          <option value="">Mọi chủ đề</option>
-          <option value="bao-tri">🛠️ Bảo trì / Sự cố</option>
-          <option value="gia-han">📄 Gia hạn hợp đồng</option>
-          <option value="tam-tru">📑 Thủ tục tạm trú</option>
-          <option value="xem-phong">👀 Đặt lịch xem phòng</option>
-          <option value="khac">💬 Việc khác</option>
-        </select>
-
-        <select value={boLoc.mucDo} onChange={(e) => setBoLoc({ ...boLoc, mucDo: e.target.value })}>
-          <option value="">Mọi mức độ</option>
-          <option value="khan_cap">🚨 Khẩn cấp</option>
-          <option value="can_gap">⚠️ Cần gấp</option>
-          <option value="binh_thuong">🟢 Tiêu chuẩn</option>
-        </select>
-
-        <select value={boLoc.trangThai} onChange={(e) => setBoLoc({ ...boLoc, trangThai: e.target.value })}>
-          <option value="">Mọi trạng thái</option>
-          <option value="cho_xu_ly">Chờ tiếp nhận</option>
-          <option value="dang_xu_ly">Đang xử lý</option>
-          <option value="da_xu_ly">Đã hoàn thành</option>
-          <option value="da_huy">Đã hủy</option>
-        </select>
-
-        {(boLoc.keyword || boLoc.nguon || boLoc.chuDe || boLoc.trangThai || boLoc.mucDo) && (
-          <button
-            type="button"
-            className="btn btn--ghost btn--sm"
-            onClick={() => setBoLoc({ keyword: '', nguon: '', chuDe: '', trangThai: '', mucDo: '' })}
-          >
-            Đặt lại lọc
-          </button>
-        )}
-      </div>
-
-      {/* Bảng danh sách phiếu */}
-      <div className="card">
-        {!dsLoc.length ? (
-          <Empty text="Không tìm thấy phiếu yêu cầu nào phù hợp với bộ lọc." />
-        ) : (
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Mã phiếu</th>
-                  <th>Người gửi & Căn</th>
-                  <th>Chủ đề & Nội dung</th>
-                  <th>Mức độ</th>
-                  <th>Thời gian</th>
-                  <th>Trạng thái</th>
-                  <th>Người xử lý</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {dsLoc.map((item) => (
-                  <tr key={item.id}>
-                    <td>
-                      <code style={{ fontWeight: 700, color: 'var(--navy)' }}>{item.id}</code>
-                    </td>
-                    <td>
-                      <strong>{item.hoTen}</strong>
-                      <div style={{ fontSize: 12, color: 'var(--muted)' }}>
-                        {item.maPhong ? (
-                          <span style={{ color: 'var(--gold-2)', fontWeight: 600 }}>Căn {item.maPhong} · </span>
-                        ) : null}
-                        {item.sdt}
-                      </div>
-                    </td>
-                    <td style={{ maxWidth: 300 }}>
-                      <strong style={{ display: 'block', fontSize: 14 }}>{item.tieuDe}</strong>
-                      <span
-                        style={{
-                          fontSize: 13,
-                          color: 'var(--muted)',
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden',
-                        }}
-                      >
-                        {item.noiDung}
-                      </span>
-                    </td>
-                    <td>
-                      {item.mucDo === 'khan_cap' ? (
-                        <span className="badge badge--danger">Khẩn cấp</span>
-                      ) : item.mucDo === 'can_gap' ? (
-                        <span className="badge badge--warn">Cần gấp</span>
-                      ) : (
-                        <span className="badge badge--muted">Tiêu chuẩn</span>
-                      )}
-                    </td>
-                    <td style={{ fontSize: 13, color: 'var(--muted)', whiteSpace: 'nowrap' }}>
-                      {item.thoiGian}
-                    </td>
-                    <td>
-                      {item.trangThai === 'cho_xu_ly' ? (
-                        <span className="badge badge--warn">Chờ xử lý</span>
-                      ) : item.trangThai === 'dang_xu_ly' ? (
-                        <span className="badge badge--muted">Đang xử lý</span>
-                      ) : item.trangThai === 'da_xu_ly' ? (
-                        <span className="badge badge--ok">Đã xử lý</span>
-                      ) : (
-                        <span className="badge badge--danger">Đã hủy</span>
-                      )}
-                    </td>
-                    <td style={{ fontSize: 13, color: 'var(--muted)' }}>
-                      {item.nguoiXuLy || '—'}
-                    </td>
-                    <td className="row-actions">
-                      <button
-                        type="button"
-                        className="btn btn--gold btn--sm"
-                        onClick={() => setDangChon({ ...item })}
-                      >
-                        Xử lý
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* Modal Xem chi tiết & Xử lý phiếu */}
-      {dangChon && (
-        <Modal title={`Xử lý phiếu yêu cầu ${dangChon.id}`} wide onClose={() => setDangChon(null)}>
-          <form onSubmit={luuXuLy}>
-            <div className="detail-grid" style={{ marginBottom: 16 }}>
-              {/* Thông tin phiếu */}
-              <div style={{ background: 'var(--paper)', padding: 16, borderRadius: 'var(--radius)', border: '1px solid var(--line)' }}>
-                <p className="page-kicker" style={{ margin: 0 }}>Thông tin người gửi</p>
-                <h3 style={{ margin: '4px 0 10px', fontSize: 18 }}>{dangChon.hoTen}</h3>
-                <dl className="kv" style={{ margin: 0 }}>
-                  <dt>Số điện thoại</dt>
-                  <dd>
-                    <a href={`tel:${dangChon.sdt}`} style={{ color: 'var(--gold)', fontWeight: 600 }}>
-                      {dangChon.sdt}
-                    </a>
-                  </dd>
-                  <dt>Email</dt>
-                  <dd>{dangChon.email || '—'}</dd>
-                  <dt>Căn phòng</dt>
-                  <dd>
-                    {dangChon.maPhong ? (
-                      <strong>Phòng {dangChon.maPhong}</strong>
-                    ) : (
-                      'Khách ngoài (Website)'
-                    )}
-                  </dd>
-                  <dt>Nguồn gửi</dt>
-                  <dd>{dangChon.nguon === 'cu_dan' ? 'Cư dân tòa nhà' : 'Khách vãng lai'}</dd>
-                  <dt>Mức độ</dt>
-                  <dd>
-                    {dangChon.mucDo === 'khan_cap' ? (
-                      <span className="badge badge--danger">Khẩn cấp</span>
-                    ) : (
-                      <span className="badge badge--muted">Tiêu chuẩn</span>
-                    )}
-                  </dd>
-                </dl>
-              </div>
-
-              {/* Nội dung yêu cầu */}
-              <div style={{ background: 'var(--brand-soft)', padding: 16, borderRadius: 'var(--radius)', border: '1px solid var(--line)' }}>
-                <p className="page-kicker" style={{ margin: 0 }}>Nội dung phản ánh</p>
-                <h4 style={{ margin: '4px 0 8px', color: 'var(--navy)' }}>{dangChon.tieuDe}</h4>
-                <p style={{ margin: 0, fontSize: 14, color: 'var(--ink)', lineHeight: 1.6 }}>
-                  {dangChon.noiDung}
-                </p>
-                <div style={{ marginTop: 12, fontSize: 12, color: 'var(--muted)' }}>
-                  Gửi lúc: {dangChon.thoiGian}
-                </div>
-              </div>
-            </div>
-
-            {/* Form thao tác tiếp nhận */}
-            <div className="form-grid">
-              <Field label="Cập nhật trạng thái phiếu">
-                <select
-                  value={dangChon.trangThai}
-                  onChange={(e) => setDangChon({ ...dangChon, trangThai: e.target.value })}
-                >
-                  <option value="cho_xu_ly">Chờ tiếp nhận</option>
-                  <option value="dang_xu_ly">Đang xử lý (Đã nhận việc)</option>
-                  <option value="da_xu_ly">Đã hoàn thành / Đã giải quyết</option>
-                  <option value="da_huy">Hủy phiếu</option>
-                </select>
-              </Field>
-
-              <Field label="Cán bộ phụ trách xử lý">
-                <input
-                  type="text"
-                  placeholder="Họ tên người phụ trách..."
-                  value={dangChon.nguoiXuLy || user?.hoTen || ''}
-                  onChange={(e) => setDangChon({ ...dangChon, nguoiXuLy: e.target.value })}
-                />
-              </Field>
-
-              <Field label="Phản hồi gửi lại cho cư dân / khách hàng" full>
-                <textarea
-                  rows={4}
-                  placeholder="Ví dụ: Đã cử kỹ thuật viên Tuấn qua kiểm tra và thay vòi nước lúc 14h30..."
-                  value={dangChon.phanHoi || ''}
-                  onChange={(e) => setDangChon({ ...dangChon, phanHoi: e.target.value })}
-                />
-              </Field>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 18 }}>
-              <button
-                type="button"
-                className="btn btn--warn btn--sm"
-                onClick={() => xuLyXoa(dangChon.id)}
-              >
-                Xóa phiếu
-              </button>
-              <Actions onClose={() => setDangChon(null)} submitLabel="Lưu cập nhật" />
-            </div>
+      <aside className="card">
+        {!detail ? <p>Chọn một yêu cầu để xem và xử lý.</p> : <>
+          <h3>Phiếu #{detail.id}</h3><p><strong>{detail.tieuDe}</strong></p>
+          <dl className="kv"><dt>Người gửi</dt><dd>{detail.hoTen}</dd><dt>Điện thoại</dt><dd>{detail.sdt}</dd>
+            <dt>Email</dt><dd>{detail.email || '—'}</dd><dt>Căn</dt><dd>{detail.maPhong || '—'}</dd>
+            <dt>Nguồn</dt><dd>{detail.nguon}</dd>
+            <dt>Mã tra cứu</dt><dd style={{ overflowWrap: 'anywhere' }}>{detail.maTraCuu}</dd></dl>
+          <p style={{ whiteSpace: 'pre-wrap' }}>{detail.noiDung}</p>
+          <form onSubmit={save}>
+            <div className="field"><label>Trạng thái</label><select disabled={Boolean(detail.lichXem)} value={edit.trangThai} onChange={(e) => setEdit({ ...edit, trangThai: e.target.value })}>
+              {Object.entries(LABEL).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></div>
+            <div className="field"><label>Phân công</label><select value={edit.nguoiXuLyId} onChange={(e) => setEdit({ ...edit, nguoiXuLyId: e.target.value })}>
+              <option value="">Chưa phân công</option>{staff.map((x) => <option key={x.id} value={x.id}>{x.hoTen}</option>)}
+            </select></div>
+            <div className="field"><label>Phản hồi</label><textarea rows={4} value={edit.phanHoi}
+              onChange={(e) => setEdit({ ...edit, phanHoi: e.target.value })} /></div>
+            <div className="modal-actions"><button className="btn btn--gold" disabled={saving}>Lưu xử lý</button></div>
           </form>
-        </Modal>
-      )}
-
-      {/* Modal Tạo phiếu mới (khi khách gọi điện trực tiếp) */}
-      {taoMoi && (
-        <Modal title="Tiếp nhận phiếu yêu cầu mới" wide onClose={() => setTaoMoi(false)}>
-          <form onSubmit={luuTaoMoi}>
-            <div className="form-grid">
-              <Field label="Họ tên khách hàng / cư dân">
-                <input
-                  required
-                  placeholder="Nguyễn Văn A..."
-                  value={formTao.hoTen}
-                  onChange={(e) => setFormTao({ ...formTao, hoTen: e.target.value })}
-                />
-              </Field>
-
-              <Field label="Số điện thoại">
-                <input
-                  required
-                  placeholder="0912..."
-                  value={formTao.sdt}
-                  onChange={(e) => setFormTao({ ...formTao, sdt: e.target.value })}
-                />
-              </Field>
-
-              <Field label="Căn phòng (nếu là cư dân)">
-                <input
-                  placeholder="P.101, P.201..."
-                  value={formTao.maPhong}
-                  onChange={(e) => setFormTao({ ...formTao, maPhong: e.target.value })}
-                />
-              </Field>
-
-              <Field label="Nguồn yêu cầu">
-                <select
-                  value={formTao.nguon}
-                  onChange={(e) => setFormTao({ ...formTao, nguon: e.target.value })}
-                >
-                  <option value="cu_dan">Cư dân trong tòa nhà</option>
-                  <option value="khach_ngoai">Khách hàng bên ngoài</option>
-                </select>
-              </Field>
-
-              <Field label="Phân loại chủ đề">
-                <select
-                  value={formTao.chuDe}
-                  onChange={(e) => setFormTao({ ...formTao, chuDe: e.target.value })}
-                >
-                  <option value="bao-tri">🛠️ Bảo trì / Sự cố thiết bị</option>
-                  <option value="gia-han">📄 Gia hạn hợp đồng</option>
-                  <option value="tam-tru">📑 Thủ tục đăng ký tạm trú</option>
-                  <option value="xem-phong">👀 Đặt lịch xem phòng</option>
-                  <option value="khac">💬 Việc khác</option>
-                </select>
-              </Field>
-
-              <Field label="Mức độ khẩn cấp">
-                <select
-                  value={formTao.mucDo}
-                  onChange={(e) => setFormTao({ ...formTao, mucDo: e.target.value })}
-                >
-                  <option value="binh_thuong">Tiêu chuẩn (Trong 24h)</option>
-                  <option value="can_gap">Cần gấp (Trong ngày)</option>
-                  <option value="khan_cap">Khẩn cấp</option>
-                </select>
-              </Field>
-
-              <Field label="Nội dung yêu cầu chi tiết" full>
-                <textarea
-                  rows={4}
-                  required
-                  placeholder="Mô tả sự cố hoặc yêu cầu của khách hàng..."
-                  value={formTao.noiDung}
-                  onChange={(e) => setFormTao({ ...formTao, noiDung: e.target.value })}
-                />
-              </Field>
-            </div>
-
-            <Actions onClose={() => setTaoMoi(false)} submitLabel="Tạo phiếu tiếp nhận" />
-          </form>
-        </Modal>
-      )}
-    </>
-  )
+          {detail.lichXem && <div style={{ marginTop: 20 }}>
+            <h3>Lịch xem</h3><p>Căn: {detail.lichXem.listingKey}</p>
+            <p>Đề nghị: {ngayGioVietNam(detail.lichXem.khungDeNghi)}</p>
+            <p>Trạng thái: {detail.lichXem.trangThai}</p>
+            {detail.lichXem.trangThai !== 'huy' && detail.lichXem.trangThai !== 'da_hoan_thanh' && <>
+              <div className="field"><label>Giờ xác nhận</label><input type="datetime-local" value={khungXacNhan.slice(0, 16)}
+                onChange={(e) => setKhungXacNhan(e.target.value)} /></div>
+              <div className="modal-actions"><button type="button" disabled={saving} onClick={() => lich('xac-nhan')}>Xác nhận</button>
+                {detail.lichXem.trangThai === 'da_xac_nhan' && <button type="button" disabled={saving} onClick={() => lich('hoan-thanh')}>Hoàn thành</button>}
+                <button type="button" disabled={saving} onClick={() => lich('huy')}>Hủy lịch</button></div>
+            </>}
+          </div>}
+          <h3 style={{ marginTop: 24 }}>Lịch sử xử lý</h3>
+          {(detail.lichSu || []).map((x) => <p key={x.id}><small>{ngayGioVietNam(x.createdAt)} · {x.nguoiThucHien || 'Hệ thống'} · {x.hanhDong}</small><br />{x.noiDung}</p>)}
+        </>}
+      </aside>
+    </div>
+  </>
 }

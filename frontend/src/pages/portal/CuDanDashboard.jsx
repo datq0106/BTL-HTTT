@@ -7,13 +7,13 @@ import { Badge, Empty, PageHead } from '../../components/ui'
 import { Icon } from '../../components/icons'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
-import { VAN_PHONG } from '../../data/listings'
 
 export default function CuDanDashboard() {
   const { user } = useAuth()
   const toast = useToast()
   const [hd, setHd] = useState(undefined)
   const [chuaDoc, setChuaDoc] = useState(0)
+  const [now] = useState(() => Date.now())
 
   useEffect(() => {
     KhachApi.hopDong()
@@ -31,7 +31,6 @@ export default function CuDanDashboard() {
   if (hd?.ngayBatDau && hd?.ngayKetThuc) {
     const start = new Date(hd.ngayBatDau).getTime()
     const end = new Date(hd.ngayKetThuc).getTime()
-    const now = Date.now()
     if (end > start) {
       pct = Math.min(100, Math.max(0, Math.round(((now - start) / (end - start)) * 100)))
     }
