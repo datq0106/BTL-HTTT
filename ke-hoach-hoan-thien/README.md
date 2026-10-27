@@ -14,6 +14,7 @@ Kế hoạch này được lập theo mã nguồn tại `E:/GIT/BTL-HTTT` ngày 
 4. [04-backlog-trien-khai.md](04-backlog-trien-khai.md): các gói việc FE/BE/DB, thứ tự phụ thuộc, tiêu chí hoàn thành.
 5. [05-kiem-thu-nghiem-thu.md](05-kiem-thu-nghiem-thu.md): kịch bản kiểm thử và điều kiện phát hành.
 6. [06-quyet-dinh-can-chot.md](06-quyet-dinh-can-chot.md): các quyết định nghiệp vụ cần xác nhận trước khi viết phần liên quan.
+7. [07-f2-api-thuc-te.md](07-f2-api-thuc-te.md) và [08-f3-api-thuc-te.md](08-f3-api-thuc-te.md): endpoint đã triển khai cho yêu cầu/lịch xem và tin đăng.
 
 ## Phân loại ưu tiên
 
@@ -24,7 +25,7 @@ Kế hoạch này được lập theo mã nguồn tại `E:/GIT/BTL-HTTT` ngày 
 ## Giới hạn thiết kế
 
 - `frontend/src/data/listings.js` chứa dữ liệu giới thiệu, tin đăng và nội dung biên tập. Không đồng nhất toàn bộ dữ liệu này với bảng `phong`: một phòng vận hành và một tin đăng công khai có vòng đời khác nhau.
-- F2 đã thay kho yêu cầu trong trình duyệt bằng API và migration V2; cần xác minh khi chạy stack. Đơn ứng tuyển vẫn cần backend và database ở F7.
+- F2 đã thay kho yêu cầu trong trình duyệt bằng API và migration V2; F3 đưa tin đăng vào DB (V3). Cả hai đã qua smoke test trên stack local. Đơn ứng tuyển vẫn cần backend và database ở F7.
 - Bộ tính ngân sách, thao tác mở FAQ, sao chép link, so sánh và lưu căn của khách chưa đăng nhập có thể xử lý trên FE. Danh sách căn dùng để tính/so sánh vẫn phải đến từ API thật.
 - Thanh toán online, gửi email/SMS và cổng cho chủ sở hữu là các tích hợp riêng; không coi là đã có chỉ vì giao diện nhắc đến.
 

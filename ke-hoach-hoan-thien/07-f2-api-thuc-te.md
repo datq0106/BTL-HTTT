@@ -1,6 +1,6 @@
 # F2: API đã triển khai trong mã nguồn
 
-Trạng thái: đã viết mã, chưa chạy build/test/migration trong lượt 27/10/2026 theo yêu cầu.
+Trạng thái 27/10/2026: migration V2 đã chạy trên MySQL 8.4 local; `scripts/f2_f3_smoke.py` đạt trên stack Docker.
 
 ## Công khai
 
@@ -10,7 +10,7 @@ Trạng thái: đã viết mã, chưa chạy build/test/migration trong lượt 
 | POST | `/api/public/lich-xem` | `listingKey`, `maPhong?`, `hoTen`, `sdt`, `email?`, `khungDeNghi` dạng giờ Việt Nam không kèm offset, `ghiChu?`; trả `maTraCuu`, `trangThai` |
 | GET | `/api/public/xac-nhan/{ma}` | Mã, loại, trạng thái, khung đề nghị/xác nhận nếu có; không trả thông tin liên hệ |
 
-Hai POST dùng cookie CSRF cùng origin, giới hạn 10 lần/IP/10 phút trong tiến trình BE, và từ chối nội dung giống hệt của cùng số điện thoại/chủ đề trong 5 phút. `listingKey` hiện là ID tin tĩnh của FE; F3 sẽ nối sang tin đăng trong database.
+Hai POST dùng cookie CSRF cùng origin, giới hạn 10 lần/IP/10 phút trong tiến trình BE, và từ chối nội dung giống hệt của cùng số điện thoại/chủ đề trong 5 phút. `listingKey` là slug tin đăng (F3); BE kiểm tra tin đang xuất bản, căn còn trống và tự gắn `maPhong` từ mã tin.
 
 ## Cư dân
 

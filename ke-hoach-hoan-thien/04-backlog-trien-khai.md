@@ -26,7 +26,7 @@ Mỗi mã việc là một gói có thể nghiệm thu độc lập. Thứ tự 
 
 ### F2 — Phiếu yêu cầu/lead/lịch xem (P0, 2 tuần; sau F0–F1)
 
-**Tiến độ 27/10/2026:** đã thêm migration V2, API yêu cầu/lịch xem công khai, API cư dân theo phiên, API nhân viên để lọc/phân công/phản hồi/xác nhận lịch; nối các form FE và bỏ `yeuCauStore.js`. Chưa chạy build/test/migration theo yêu cầu lượt này. Cần xác minh với database MySQL và trình duyệt trước khi đánh dấu F2 hoàn tất.
+**Tiến độ 27/10/2026:** đã thêm migration V2, API yêu cầu/lịch xem công khai, API cư dân theo phiên, API nhân viên để lọc/phân công/phản hồi/xác nhận lịch; nối các form FE và bỏ `yeuCauStore.js`. Migration V2 chạy đạt trên MySQL 8.4 local; `scripts/f2_f3_smoke.py` xác minh gửi phiếu/lịch, CSRF, chặn trùng, nhân viên phản hồi và xác nhận lịch, cư dân chỉ thấy phiếu của mình. Còn thử thủ công trên trình duyệt hai máy và đối chiếu DB Aiven (F0).
 
 - **DB:** thêm `yeu_cau`, `yeu_cau_lich_su`, `lich_xem` và index theo trạng thái/ngày/người gửi; migration và seed demo chỉ cho dev.
 - **BE:** endpoint công khai liên hệ/brief/chủ nhà/quan tâm căn/đặt lịch; endpoint cư dân `yeu-cau cua-toi`; endpoint staff phân trang, lọc, phân công, phản hồi, đổi trạng thái, xác nhận lịch. Server gắn danh tính cư dân từ session. Validate SĐT/email/nội dung; rate limit form public; chống gửi trùng.
@@ -34,6 +34,8 @@ Mỗi mã việc là một gói có thể nghiệm thu độc lập. Thứ tự 
 - **Xong khi:** gửi ở trình duyệt A, nhân viên ở B thấy ngay sau tải; staff phản hồi, cư dân A thấy lịch sử và chỉ phiếu của mình; lỗi HTTP không hiện toast thành công.
 
 ### F3 — Danh mục bất động sản và tin công khai (P1, 2–3 tuần; sau F0, phối hợp F2)
+
+**Tiến độ 27/10/2026:** đã có migration V3, API công khai/nội bộ cho khu vực, tòa nhà, tin đăng và ảnh; các trang public đọc từ `CatalogContext`; màn `/quan-ly/tin-dang` tạo/sửa/xuất bản/ẩn tin và quản lý ảnh. Smoke test trên stack local đạt. Còn seed dữ liệu dev, backfill phòng cũ sau khi có schema Aiven, và chốt Q2/quyền xuất bản. Xem [API F3](08-f3-api-thuc-te.md).
 
 - **DB:** khu vực/địa điểm, bất động sản, liên kết phòng, tin đăng, ảnh/tệp công khai; backfill phòng cũ. Tách giá thuê trong hợp đồng, giá loại phòng và giá niêm yết.
 - **BE:** quản lý bất động sản/tin/ảnh; phát hành/ẩn; API public danh sách, chi tiết, khu vực, tin tương tự, bản đồ. Quy tắc phòng bảo trì/ẩn/đang thuê có được hiện và nhận lịch phải được chốt.

@@ -2,7 +2,7 @@
 
 Nguồn route: `frontend/src/App.jsx`. Nguồn API FE: `frontend/src/api/services.js`. Ký hiệu: **API** = đã gọi BE, **tĩnh** = `frontend/src/data/listings.js`, **local** = `localStorage`, **toast** = chỉ hiện thông báo. “Đã gọi API” chỉ xác nhận nối mã nguồn; chưa chứng minh hoạt động với database thật.
 
-**Cập nhật F2 (27/10/2026):** các dòng về form liên hệ, brief, chủ nhà, quan tâm căn, đặt lịch, xác nhận, concierge và trang yêu cầu nhân viên ở bảng dưới mô tả hiện trạng trước F2. Chúng đã chuyển sang API/DB trong mã nguồn; đối chiếu [hợp đồng API F2](07-f2-api-thuc-te.md). Dữ liệu danh sách căn vẫn tĩnh tới F3. Chưa chạy build/test/migration lượt này.
+**Cập nhật F2 (27/10/2026):** các dòng về form liên hệ, brief, chủ nhà, quan tâm căn, đặt lịch, xác nhận, concierge và trang yêu cầu nhân viên ở bảng dưới mô tả hiện trạng trước F2. Chúng đã chuyển sang API/DB trong mã nguồn; đối chiếu [hợp đồng API F2](07-f2-api-thuc-te.md). **Cập nhật F3:** danh sách, chi tiết, khu vực, bản đồ, ngân sách, so sánh, shortlist đọc tin đăng từ API; nhân viên quản lý tin ở `/quan-ly/tin-dang` ([API F3](08-f3-api-thuc-te.md)).
 
 ## Website công khai
 

@@ -39,7 +39,7 @@ npm ci
 npm run dev
 ```
 
-Kiểm tra BE bằng `mvn -f backend/pom.xml test`; kiểm tra FE bằng `cd frontend && npm run test && npm run lint && npm run build`. Khi stack Docker đã lên, `python scripts/smoke.py` thử route SPA và upload/download, còn `python scripts/security_smoke.py` thử đăng nhập, CSRF, quyền, thông báo, khóa tài khoản và thu hồi phiên. Hai script tự xóa bản ghi thử nghiệm.
+Kiểm tra BE bằng `mvn -f backend/pom.xml test`; kiểm tra FE bằng `cd frontend && npm run test && npm run lint && npm run build`. Khi stack Docker đã lên, `python scripts/smoke.py` thử route SPA và upload/download, `python scripts/security_smoke.py` thử đăng nhập, CSRF, quyền, thông báo, khóa tài khoản và thu hồi phiên, còn `python scripts/f2_f3_smoke.py` thử tin đăng, form công khai, lịch xem và phiếu cư dân. Các script tự xóa bản ghi thử nghiệm.
 
 ## Database và sao lưu
 
@@ -56,6 +56,6 @@ Restore chỉ chấp nhận database đích rỗng; thêm `--with-uploads` nếu
 
 ## Tình trạng tính năng
 
-F0 đã có cấu trúc repo, stack local, migration DB mới, healthcheck và backup/restore local. Baseline DB hiện hữu và kịch bản nâng cấp dữ liệu thật đang chờ schema dump để đối chiếu. Các màn public còn dùng dữ liệu căn trong `frontend/src/data/listings.js`; đây là phạm vi F3 trong [backlog](ke-hoach-hoan-thien/04-backlog-trien-khai.md).
+F0 đã có cấu trúc repo, stack local, migration DB mới, healthcheck và backup/restore local. Baseline DB hiện hữu và kịch bản nâng cấp dữ liệu thật đang chờ schema dump để đối chiếu. Các màn public đọc khu vực và tin đăng từ API (F3); `frontend/src/data/listings.js` chỉ còn nội dung giới thiệu tĩnh (văn phòng, đội ngũ, bài viết, tuyển dụng).
 
-F1 đã thêm kiểm tra phiên theo trạng thái tài khoản hiện tại, sửa thông báo chưa đọc, làm mới CSRF sau login và chuyển về đăng nhập sau đổi mật khẩu. F2 đã viết API và migration V2 cho yêu cầu/lịch xem; các form, cổng cư dân và màn nhân viên đã gọi API thay cho `localStorage`. Lượt F2 chưa chạy build/test/migration theo yêu cầu; xem [hợp đồng API F2](ke-hoach-hoan-thien/07-f2-api-thuc-te.md).
+F1 đã thêm kiểm tra phiên theo trạng thái tài khoản hiện tại, sửa thông báo chưa đọc, làm mới CSRF sau login và chuyển về đăng nhập sau đổi mật khẩu. F2 đã viết API và migration V2 cho yêu cầu/lịch xem; các form, cổng cư dân và màn nhân viên đã gọi API thay cho `localStorage`. F3 đã thêm migration V3, API khu vực/tòa nhà/tin đăng/ảnh và màn nhân viên `/quan-ly/tin-dang`. Migration V2–V3 và `python scripts/f2_f3_smoke.py` đã chạy đạt trên stack Docker local; xem [API F2](ke-hoach-hoan-thien/07-f2-api-thuc-te.md) và [API F3](ke-hoach-hoan-thien/08-f3-api-thuc-te.md). DB mới chưa có tin đăng nào, nên website công khai trống cho tới khi nhân viên tạo và xuất bản tin.
