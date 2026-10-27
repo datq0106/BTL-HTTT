@@ -23,6 +23,7 @@ import com.quanlitro.repository.KhachThueRepository;
 import com.quanlitro.repository.PhongRepository;
 import com.quanlitro.repository.TaiKhoanRepository;
 import com.quanlitro.utils.TextUtils;
+import com.quanlitro.utils.NgayUtils;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.data.domain.Page;
@@ -31,7 +32,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -193,21 +193,21 @@ public class HopDongServiceImpl implements HopDongService {
         HopDongFilter f = filter != null ? filter : new HopDongFilter(null, null, null, null);
         return hopDongRepo.search(TextUtils.khongRong(f.keyword()), f.phongId(),
                         TextUtils.khongRong(f.trangThai()), f.sapHetHan(),
-                        LocalDate.now().plusDays(SO_NGAY_CANH_BAO), pageable)
+                        NgayUtils.homNay().plusDays(SO_NGAY_CANH_BAO), pageable)
                 .map(mapper::toListResponse);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<HopDongResponse> sapHetHan() {
-        return hopDongRepo.findSapHetHan(LocalDate.now().plusDays(SO_NGAY_CANH_BAO)).stream()
+        return hopDongRepo.findSapHetHan(NgayUtils.homNay().plusDays(SO_NGAY_CANH_BAO)).stream()
                 .map(mapper::toListResponse)
                 .toList();
     }
 
     @Override
     public int danhDauHopDongHetHan() {
-        return hopDongRepo.danhDauHetHan(LocalDate.now());
+        return hopDongRepo.danhDauHetHan(NgayUtils.homNay());
     }
 
     private HopDong timDetail(Integer id) {

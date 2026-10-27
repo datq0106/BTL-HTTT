@@ -18,13 +18,13 @@ import com.quanlitro.repository.KhachThueRepository;
 import com.quanlitro.repository.TaiKhoanRepository;
 import com.quanlitro.repository.VaiTroRepository;
 import com.quanlitro.utils.TextUtils;
+import com.quanlitro.utils.NgayUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 
 @Service
 @Transactional
@@ -114,7 +114,7 @@ public class TaiKhoanServiceImpl implements TaiKhoanService {
 
     @Override
     public void ghiNhanDangNhap(Integer id) {
-        taiKhoanRepo.capNhatLanDangNhapCuoi(id, LocalDateTime.now());
+        taiKhoanRepo.capNhatLanDangNhapCuoi(id, NgayUtils.bayGio());
     }
 
     @Override

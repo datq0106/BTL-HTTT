@@ -15,10 +15,10 @@ import com.quanlitro.entity.HopDongKhach;
 import com.quanlitro.entity.KhachThue;
 import com.quanlitro.entity.Phong;
 import com.quanlitro.entity.TaiKhoan;
+import com.quanlitro.utils.NgayUtils;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
@@ -90,7 +90,7 @@ public class HopDongMapper {
                                   List<DichVuHopDongResponse> dichVu, BigDecimal congNo) {
         // Số ngày còn lại chỉ có ý nghĩa với hợp đồng đang hiệu lực (âm = đã quá hạn)
         Long soNgayConLai = "hieu_luc".equals(h.getTrangThai())
-                ? ChronoUnit.DAYS.between(LocalDate.now(), h.getNgayKetThuc())
+                ? ChronoUnit.DAYS.between(NgayUtils.homNay(), h.getNgayKetThuc())
                 : null;
 
         return HopDongResponseBuilder.moi()
