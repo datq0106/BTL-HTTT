@@ -23,6 +23,16 @@ Website và trang quản trị dùng chung `http://localhost:8088` (hoặc `APP_
 
 MySQL lưu ở volume `mysql_data`; tài liệu tải lên lưu ở volume `uploads`. `docker compose down` giữ dữ liệu, còn `docker compose down -v` xóa cả hai volume. Không dùng lệnh sau cho dữ liệu cần giữ.
 
+## Dữ liệu demo
+
+Sau khi stack lên, chạy `python scripts/seed_demo.py` (cần Node để đọc `frontend/src/data/listings.js`). Script tạo dịch vụ, loại phòng, 10 phòng, khách thuê, 3 hợp đồng (một hợp đồng sắp hết hạn), các khu vực và tin đăng kèm ảnh, vài phiếu yêu cầu. Chạy lại không tạo trùng.
+
+| Tài khoản | Mật khẩu | Vai trò |
+| --- | --- | --- |
+| `admin` | `APP_ADMIN_PASSWORD` trong `.env` | Chủ trọ |
+| `quanly` | `Demo@2026` | Quản lý |
+| `cudan1`, `cudan2` | `Demo@2026` | Cư dân có hợp đồng P101, P201 |
+
 ## Chạy FE/BE riêng để phát triển
 
 BE cần một MySQL có schema do Flyway tạo, username/password qua biến môi trường `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`; lần đầu cần `NHATRO_ADMIN_INITIAL_PASSWORD` (ít nhất 12 ký tự). Ví dụ chạy BE khi đã có DB local:
