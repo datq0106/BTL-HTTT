@@ -36,13 +36,17 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/public/yeu-cau", "/api/public/lich-xem").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/public/xac-nhan/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/public/tin-dang", "/api/public/tin-dang/**",
+                                "/api/public/khu-vuc", "/api/public/khu-vuc/**").permitAll()
                         .requestMatchers("/api/auth/**").authenticated()
 
                         .requestMatchers("/api/tai-khoan/**").hasRole("ADMIN")
 
                         .requestMatchers("/api/dashboard/**", "/api/phong/**", "/api/khach-thue/**", "/api/hop-dong/**",
                                 "/api/dich-vu/**", "/api/chi-so/**", "/api/hoa-don/**", "/api/su-co/**",
-                                "/api/bao-cao/**", "/api/yeu-cau", "/api/yeu-cau/**").hasAnyRole("ADMIN", "QUAN_LY")
+                                "/api/bao-cao/**", "/api/yeu-cau", "/api/yeu-cau/**",
+                                "/api/bat-dong-san", "/api/bat-dong-san/**",
+                                "/api/tin-dang", "/api/tin-dang/**").hasAnyRole("ADMIN", "QUAN_LY")
 
                         .requestMatchers("/api/khach/**").hasRole("KHACH")
 

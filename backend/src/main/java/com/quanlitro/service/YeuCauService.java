@@ -32,17 +32,19 @@ public class YeuCauService {
     private final LichXemRepository lichXemRepo;
     private final TaiKhoanRepository taiKhoanRepo;
     private final HopDongRepository hopDongRepo;
+    private final TinDangService tinDangService;
     private final SecureRandom random = new SecureRandom();
     private final Map<String, Deque<LocalDateTime>> luotCongKhai = new HashMap<>();
 
     public YeuCauService(YeuCauRepository yeuCauRepo, YeuCauLichSuRepository lichSuRepo,
                          LichXemRepository lichXemRepo, TaiKhoanRepository taiKhoanRepo,
-                         HopDongRepository hopDongRepo) {
+                         HopDongRepository hopDongRepo, TinDangService tinDangService) {
         this.yeuCauRepo = yeuCauRepo;
         this.lichSuRepo = lichSuRepo;
         this.lichXemRepo = lichXemRepo;
         this.taiKhoanRepo = taiKhoanRepo;
         this.hopDongRepo = hopDongRepo;
+        this.tinDangService = tinDangService;
     }
 
     @Transactional
@@ -53,6 +55,7 @@ public class YeuCauService {
         if ("quan-tam".equals(body.chuDe())) {
             if (body.listingKey() == null || body.listingKey().isBlank())
                 throw new BusinessException("Thiếu mã tin đăng");
+            maPhong = tinDangService.chiTietCongKhai(body.listingKey()).ma();
         }
         YeuCau yc = tao("khach_ngoai", body.chuDe(), body.tieuDe(), body.hoTen(), body.sdt(),
                 body.email(), maPhong, body.listingKey(), "binh_thuong", body.noiDung(), null);
@@ -65,7 +68,9 @@ public class YeuCauService {
         if (!body.khungDeNghi().isAfter(NgayUtils.bayGio()) || body.khungDeNghi().isAfter(NgayUtils.bayGio().plusMonths(3))) {
             throw new BusinessException("Ngày xem phải ở tương lai và trong vòng 3 tháng");
         }
-        String maPhong = body.maPhong();
+        if (!tinDangService.duocDatLich(body.listingKey()))
+            throw new BusinessException("Căn này hiện không nhận lịch xem");
+        String maPhong = tinDangService.chiTietCongKhai(body.listingKey()).ma();
         String noiDung = "Đề nghị xem căn " + body.listingKey() + " lúc " + body.khungDeNghi()
                 + ". Ghi chú: " + (body.ghiChu() == null ? "" : body.ghiChu());
         YeuCau yc = tao("khach_ngoai", "xem-phong", "Đăng ký xem căn " + maPhong, body.hoTen(),
