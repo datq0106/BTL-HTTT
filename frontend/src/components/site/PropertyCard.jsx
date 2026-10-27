@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom'
 import { tien } from '../../utils/format'
 import { Badge } from '../ui'
-import { KHU_VUC } from '../../data/listings'
+import { useCatalog } from '../../context/CatalogContext'
 import ShortlistBtn from './ShortlistBtn'
 
 export default function PropertyCard({ item, lon }) {
+  const { khuVuc: KHU_VUC } = useCatalog()
   const khu = KHU_VUC.find((k) => k.id === item.khuVuc)
   return (
     <article className={`prop-card ${lon ? 'prop-card--lg' : ''}`}>

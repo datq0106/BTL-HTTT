@@ -1,8 +1,10 @@
-﻿import { useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import PropertyCard from '../../components/site/PropertyCard'
 import SiteBanner from '../../components/site/SiteBanner'
-import { KHU_VUC, LOAI_CAN, locListings } from '../../data/listings'
+import { useCatalog } from '../../context/CatalogContext'
+import { PublicTinDangApi } from '../../api/services'
+import { thongBaoLoi } from '../../api/client'
 import { Icon } from '../../components/icons'
 import { tien } from '../../utils/format'
 import { Badge } from '../../components/ui'
@@ -11,9 +13,16 @@ import MapBoard from '../../components/site/MapBoard'
 
 export default function ListingsPage() {
   const [sp, setSp] = useSearchParams()
+  const { khuVuc: KHU_VUC, loaiCan: LOAI_CAN } = useCatalog()
   const [keyword, setKeyword] = useState(sp.get('q') || '')
   const sapXep = sp.get('sx') || 'noi-bat'
   const [kieu, setKieu] = useState('luoi')
+  const [ds, setDs] = useState([])
+  const [tong, setTong] = useState(0)
+  const [tongTrang, setTongTrang] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const trang = Math.max(0, Number(sp.get('trang') || 0) || 0)
   const loc = {
     keyword: sp.get('q') || '',
     khuVuc: sp.get('khu') || '',
@@ -22,20 +31,24 @@ export default function ListingsPage() {
     phongNgu: sp.get('pn') || '',
   }
 
-  const ds = useMemo(() => {
-    const raw = locListings(loc)
-    const copy = [...raw]
-    if (sapXep === 'gia-tang') copy.sort((a, b) => a.gia - b.gia)
-    else if (sapXep === 'gia-giam') copy.sort((a, b) => b.gia - a.gia)
-    else if (sapXep === 'dien-tich') copy.sort((a, b) => b.dienTich - a.dienTich)
-    else copy.sort((a, b) => Number(b.noiBat) - Number(a.noiBat) || a.gia - b.gia)
-    return copy
-  }, [sp]) // eslint-disable-line react-hooks/exhaustive-deps
+  const query = sp.toString()
+  useEffect(() => {
+    let active = true
+    setLoading(true)
+    PublicTinDangApi.danhSach({ q: loc.keyword, khuVuc: loc.khuVuc, loai: loc.loai,
+      giaDen: loc.giaDen || undefined, phongNgu: loc.phongNgu || undefined,
+      sapXep, trang, kichThuoc: 12 })
+      .then(({ data }) => { if (active) { setDs(data.noiDung || []); setTong(data.tongSoBanGhi || 0); setTongTrang(data.tongSoTrang || 0); setError('') } })
+      .catch((err) => { if (active) setError(thongBaoLoi(err)) })
+      .finally(() => { if (active) setLoading(false) })
+    return () => { active = false }
+  }, [query]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function gan(k, v) {
     const next = new URLSearchParams(sp)
     if (v) next.set(k, v)
     else next.delete(k)
+    if (k !== 'trang') next.delete('trang')
     setSp(next)
   }
 
@@ -85,7 +98,7 @@ export default function ListingsPage() {
           <button className="btn" type="submit">Lọc</button>
         </form>
         <div className="result-bar">
-          <p className="muted">{ds.length} căn phù hợp</p>
+          <p className="muted">{tong} căn phù hợp</p>
           <div className="result-bar__tools">
             <label className="sort-field">
               <span>Sắp xếp</span>
@@ -109,7 +122,8 @@ export default function ListingsPage() {
             </div>
           </div>
         </div>
-        {ds.length === 0 ? (
+        {error && <div className="card" role="alert"><p>{error}</p></div>}
+        {loading ? <div className="card"><p>Đang tải quỹ căn...</p></div> : ds.length === 0 ? (
           <div className="card"><p className="empty">Không có căn khớp bộ lọc. Thử nới ngân sách hoặc khu vực.</p></div>
         ) : kieu === 'luoi' ? (
           <div className="prop-grid">
@@ -155,6 +169,11 @@ export default function ListingsPage() {
             ))}
           </div>
         )}
+        {!loading && tongTrang > 1 && <div className="modal-actions">
+          <button type="button" disabled={trang === 0} onClick={() => gan('trang', String(trang - 1))}>Trước</button>
+          <span>Trang {trang + 1}/{tongTrang}</span>
+          <button type="button" disabled={trang + 1 >= tongTrang} onClick={() => gan('trang', String(trang + 1))}>Sau</button>
+        </div>}
       </div>
     </>
   )

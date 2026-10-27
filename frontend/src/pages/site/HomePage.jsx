@@ -1,15 +1,15 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Icon } from '../../components/icons'
 import PropertyCard from '../../components/site/PropertyCard'
-import { BAO_CHI, DICH_VU, KHU_VUC, LISTINGS, LOI_KHACH, TIN_THI_TRUONG, VAN_PHONG } from '../../data/listings'
+import { BAO_CHI, DICH_VU, LOI_KHACH, TIN_THI_TRUONG, VAN_PHONG } from '../../data/listings'
+import { useCatalog } from '../../context/CatalogContext'
 import { tien } from '../../utils/format'
-
-const NOI_BAT = LISTINGS.filter((x) => x.noiBat)
-const [FEATURE, ...CON_LAI] = NOI_BAT
 
 export default function HomePage() {
   const navigate = useNavigate()
+  const { khuVuc: KHU_VUC, listings: LISTINGS, loading, error } = useCatalog()
+  const [FEATURE, ...CON_LAI] = LISTINGS.filter((x) => x.noiBat)
   const [form, setForm] = useState({ keyword: '', khuVuc: '', giaDen: '' })
 
   function tim(e) {
@@ -62,7 +62,7 @@ export default function HomePage() {
             </button>
           </form>
           <div className="hero-stats">
-            <div><strong>{LISTINGS.length}</strong><span>Căn đang quản lý</span></div>
+            <div><strong>{loading ? '…' : LISTINGS.length}</strong><span>Căn đang công bố</span></div>
             <div><strong>12 năm</strong><span>Kinh nghiệm leasing</span></div>
             <div><strong>98%</strong><span>Tỷ lệ gia hạn</span></div>
           </div>
@@ -82,7 +82,9 @@ export default function HomePage() {
           </div>
           <Link to="/bat-dong-san" className="btn btn--ghost">Xem toàn bộ quỹ</Link>
         </div>
-        {FEATURE && (
+        {error && <p role="alert">{error}</p>}
+        {loading && <p>Đang tải căn nổi bật...</p>}
+        {FEATURE ? (
           <div className="mosaic">
             <Link to={`/bat-dong-san/${FEATURE.id}`} className="mosaic__hero">
               <img src={FEATURE.anh[0]} alt={FEATURE.tieuDe} />
@@ -97,7 +99,7 @@ export default function HomePage() {
               {CON_LAI.slice(0, 2).map((item) => <PropertyCard key={item.id} item={item} />)}
             </div>
           </div>
-        )}
+        ) : !loading && <p className="muted">Chưa có căn nổi bật được công bố.</p>}
       </section>
 
       <section className="site-section site-section--cream">

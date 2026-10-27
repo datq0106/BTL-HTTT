@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import { listingTheoId } from '../data/listings'
+import { useCatalog } from './CatalogContext'
 
 const KEY = 'maisoncu-shortlist'
 const ShortlistContext = createContext(null)
@@ -15,6 +15,7 @@ function docLocal() {
 
 export function ShortlistProvider({ children }) {
   const [ids, setIds] = useState(docLocal)
+  const { listingTheoId, loading } = useCatalog()
 
   useEffect(() => {
     localStorage.setItem(KEY, JSON.stringify(ids))
@@ -25,6 +26,7 @@ export function ShortlistProvider({ children }) {
     return {
       ids,
       ds,
+      loading,
       soLuong: ds.length,
       coTrong(id) {
         return ids.includes(id)
@@ -42,7 +44,7 @@ export function ShortlistProvider({ children }) {
         setIds([])
       },
     }
-  }, [ids])
+  }, [ids, listingTheoId, loading])
 
   return <ShortlistContext.Provider value={value}>{children}</ShortlistContext.Provider>
 }

@@ -2,10 +2,11 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import SiteBanner from '../../components/site/SiteBanner'
 import PropertyCard from '../../components/site/PropertyCard'
-import { KHU_VUC, LISTINGS } from '../../data/listings'
+import { useCatalog } from '../../context/CatalogContext'
 import { tien } from '../../utils/format'
 
 export default function BudgetPage() {
+  const { khuVuc: KHU_VUC, listings: LISTINGS, loading, error } = useCatalog()
   const [form, setForm] = useState({ thuNhap: '40000000', tyLe: '30', nguoi: '2', khu: '' })
   const nganSach = Math.round(Number(form.thuNhap || 0) * (Number(form.tyLe || 0) / 100))
 
@@ -16,7 +17,7 @@ export default function BudgetPage() {
       .slice(0, 6)
   }, [nganSach, form.khu])
 
-  const khuHop = KHU_VUC.filter((k) => k.giaTu <= nganSach)
+  const khuHop = KHU_VUC.filter((k) => k.giaTu != null && k.giaTu <= nganSach)
 
   return (
     <>
@@ -89,6 +90,8 @@ export default function BudgetPage() {
           </div>
           <Link to="/bat-dong-san" className="btn btn--ghost">Toàn bộ quỹ</Link>
         </div>
+        {error && <p role="alert">{error}</p>}
+        {loading && <p>Đang tải gợi ý căn...</p>}
         {goiY.length === 0 ? (
           <div className="card"><p className="empty">Không có căn trống khớp. Thử nới % hoặc bỏ lọc khu.</p></div>
         ) : (

@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { ToastProvider } from './context/ToastContext'
 import { ShortlistProvider } from './context/ShortlistContext'
+import { CatalogProvider } from './context/CatalogContext'
 import { GuestOnly, RequireAdmin, RequireAuth, RequireKhach, RequireStaff } from './components/guards'
 import Layout from './components/Layout'
 import SiteLayout from './components/site/SiteLayout'
@@ -59,7 +60,7 @@ export default function App() {
   return (
     <ToastProvider>
       <AuthProvider>
-        <ShortlistProvider>
+        <CatalogProvider><ShortlistProvider>
         <BrowserRouter>
           <Routes>
             <Route element={<SiteLayout />}>
@@ -128,7 +129,7 @@ export default function App() {
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </BrowserRouter>
-        </ShortlistProvider>
+        </ShortlistProvider></CatalogProvider>
       </AuthProvider>
     </ToastProvider>
   )

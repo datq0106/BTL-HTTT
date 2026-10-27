@@ -1,25 +1,25 @@
-﻿import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import SiteBanner from '../../components/site/SiteBanner'
 import MapBoard from '../../components/site/MapBoard'
-import { KHU_VUC, LISTINGS, locListings } from '../../data/listings'
+import { useCatalog } from '../../context/CatalogContext'
 import { tien } from '../../utils/format'
 import { Badge } from '../../components/ui'
 
 export default function MapPage() {
+  const { khuVuc: KHU_VUC, listings: LISTINGS, loading, error } = useCatalog()
   const [sp, setSp] = useSearchParams()
   const khu = sp.get('khu') || ''
-  const ds = useMemo(() => locListings({ khuVuc: khu }), [khu])
-  const [chon, setChon] = useState(ds[0]?.id || '')
-  const item = LISTINGS.find((x) => x.id === chon) || ds[0]
+  const ds = LISTINGS.filter((x) => !khu || x.khuVuc === khu)
+  const [chon, setChon] = useState('')
+  const item = ds.find((x) => x.id === chon) || ds[0]
 
   function ganKhu(v) {
     const next = new URLSearchParams(sp)
     if (v) next.set('khu', v)
     else next.delete('khu')
     setSp(next)
-    const loc = locListings({ khuVuc: v })
-    setChon(loc[0]?.id || '')
+    setChon('')
   }
 
   return (
@@ -32,6 +32,8 @@ export default function MapPage() {
         compact
       />
       <div className="site-page">
+        {error && <p role="alert">{error}</p>}
+        {loading && <p>Đang tải bản đồ căn...</p>}
         <div className="map-toolbar">
           <button type="button" className={!khu ? 'on' : ''} onClick={() => ganKhu('')}>Tất cả</button>
           {KHU_VUC.map((k) => (

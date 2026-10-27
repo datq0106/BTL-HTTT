@@ -4,7 +4,7 @@ import PropertyCard from '../../components/site/PropertyCard'
 import { useShortlist } from '../../context/ShortlistContext'
 
 export default function ShortlistPage() {
-  const { ds, xoaHet } = useShortlist()
+  const { ds, ids, loading, xoaHet } = useShortlist()
 
   return (
     <>
@@ -25,7 +25,8 @@ export default function ShortlistPage() {
             )}
           </div>
         </div>
-        {ds.length === 0 ? (
+        {!loading && ids.length > ds.length && <p className="muted">Một số căn đã ẩn hoặc không còn được công bố.</p>}
+        {loading ? <p>Đang tải căn đã lưu...</p> : ds.length === 0 ? (
           <div className="card empty-board">
             <p className="page-kicker">Empty desk</p>
             <h2>Chưa lưu căn nào.</h2>

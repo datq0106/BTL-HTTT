@@ -1,9 +1,10 @@
-﻿import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import SiteBanner from '../../components/site/SiteBanner'
-import { KHU_VUC } from '../../data/listings'
+import { useCatalog } from '../../context/CatalogContext'
 import { tien } from '../../utils/format'
 
 export default function DistrictsPage() {
+  const { khuVuc: KHU_VUC, loading, error } = useCatalog()
   return (
     <>
       <SiteBanner
@@ -13,6 +14,9 @@ export default function DistrictsPage() {
         anh="/properties/04.jpg"
       />
       <div className="site-page">
+        {error && <p role="alert">{error}</p>}
+        {loading && <p>Đang tải khu vực...</p>}
+        {!loading && KHU_VUC.length === 0 && <p>Chưa có khu vực được công bố.</p>}
         <div className="district-grid district-grid--page">
           {KHU_VUC.map((k) => (
             <Link key={k.id} to={`/khu-vuc/${k.id}`} className="district district--photo">

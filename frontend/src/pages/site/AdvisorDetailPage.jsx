@@ -1,13 +1,15 @@
-﻿import { Link, Navigate, useParams } from 'react-router-dom'
+import { Link, Navigate, useParams } from 'react-router-dom'
 import SiteBanner from '../../components/site/SiteBanner'
 import PropertyCard from '../../components/site/PropertyCard'
-import { doiNguTheoId, listingsTheoAdvisor, VAN_PHONG } from '../../data/listings'
+import { doiNguTheoId, VAN_PHONG } from '../../data/listings'
+import { useCatalog } from '../../context/CatalogContext'
 
 export default function AdvisorDetailPage() {
   const { id } = useParams()
+  const { listings } = useCatalog()
   const p = doiNguTheoId(id)
   if (!p) return <Navigate to="/doi-ngu" replace />
-  const ds = listingsTheoAdvisor(p)
+  const ds = listings.filter((x) => p.khuIds.includes(x.khuVuc))
 
   return (
     <>

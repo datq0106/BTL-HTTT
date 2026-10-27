@@ -1,14 +1,16 @@
-import { Link, Navigate, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import PropertyCard from '../../components/site/PropertyCard'
 import SiteBanner from '../../components/site/SiteBanner'
-import { khuVucTheoId, locListings } from '../../data/listings'
+import { useCatalog } from '../../context/CatalogContext'
 import { tien } from '../../utils/format'
 
 export default function DistrictDetailPage() {
   const { id } = useParams()
+  const { khuVucTheoId, listings, loading, error } = useCatalog()
   const khu = khuVucTheoId(id)
-  if (!khu) return <Navigate to="/khu-vuc" replace />
-  const ds = locListings({ khuVuc: khu.id })
+  if (loading) return <div className="site-page"><p>Đang tải khu vực...</p></div>
+  if (!khu) return <div className="site-page"><p role="alert">{error || 'Không tìm thấy khu vực này.'}</p><Link to="/khu-vuc">Xem các khu vực</Link></div>
+  const ds = listings.filter((x) => x.khuVuc === khu.id)
 
   return (
     <>

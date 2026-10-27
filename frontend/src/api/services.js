@@ -115,3 +115,36 @@ export const YeuCauApi = {
   hoanThanhLich: (id) => api.patch(`/yeu-cau/${id}/lich-xem/hoan-thanh`),
   huyLich: (id) => api.patch(`/yeu-cau/${id}/lich-xem/huy`),
 }
+
+export const PublicTinDangApi = {
+  khuVuc: () => api.get('/public/khu-vuc'),
+  chiTietKhu: (slug) => api.get(`/public/khu-vuc/${encodeURIComponent(slug)}`),
+  danhSach: (params) => api.get('/public/tin-dang', { params }),
+  chiTiet: (slug) => api.get(`/public/tin-dang/${encodeURIComponent(slug)}`),
+  tuongTu: (slug) => api.get(`/public/tin-dang/${encodeURIComponent(slug)}/tuong-tu`),
+}
+
+export const BatDongSanApi = {
+  khuVuc: () => api.get('/bat-dong-san/khu-vuc'),
+  luuKhu: (slug, body) => api.put(`/bat-dong-san/khu-vuc/${encodeURIComponent(slug)}`, body),
+  danhSach: () => api.get('/bat-dong-san'),
+  tao: (body) => api.post('/bat-dong-san', body),
+  sua: (id, body) => api.put(`/bat-dong-san/${id}`, body),
+}
+
+export const TinDangApi = {
+  danhSach: (params) => api.get('/tin-dang', { params }),
+  chiTiet: (id) => api.get(`/tin-dang/${id}`),
+  tao: (body) => api.post('/tin-dang', body),
+  sua: (id, body) => api.put(`/tin-dang/${id}`, body),
+  xuatBan: (id) => api.post(`/tin-dang/${id}/xuat-ban`),
+  an: (id) => api.post(`/tin-dang/${id}/an`),
+  themAnh: (id, file, altText = '') => {
+    const form = new FormData()
+    form.append('file', file)
+    form.append('altText', altText)
+    return api.post(`/tin-dang/${id}/anh`, form)
+  },
+  sapXepAnh: (id, ids) => api.put(`/tin-dang/${id}/anh/thu-tu`, ids),
+  xoaAnh: (id, anhId) => api.delete(`/tin-dang/${id}/anh/${anhId}`),
+}

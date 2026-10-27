@@ -2,10 +2,11 @@ import { Link } from 'react-router-dom'
 import SiteBanner from '../../components/site/SiteBanner'
 import { useShortlist } from '../../context/ShortlistContext'
 import { tien } from '../../utils/format'
-import { KHU_VUC } from '../../data/listings'
+import { useCatalog } from '../../context/CatalogContext'
 import { Badge } from '../../components/ui'
 
 export default function ComparePage() {
+  const { khuVuc: KHU_VUC } = useCatalog()
   const { ds, xoa } = useShortlist()
   const cols = ds.slice(0, 3)
 
