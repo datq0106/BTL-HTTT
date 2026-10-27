@@ -2,8 +2,10 @@ package com.quanlitro.controller;
 
 import com.quanlitro.dto.hopdong.HopDongResponse;
 import com.quanlitro.dto.common.PageResponse;
+import com.quanlitro.dto.hoadon.HoaDonDtos;
 import com.quanlitro.dto.yeucau.YeuCauDtos;
 import com.quanlitro.exception.ForbiddenException;
+import com.quanlitro.service.HoaDonService;
 import com.quanlitro.service.HopDongService;
 import com.quanlitro.service.YeuCauService;
 import jakarta.validation.Valid;
@@ -19,16 +21,20 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/khach")
 public class KhachController {
 
     private final HopDongService hopDongService;
     private final YeuCauService yeuCauService;
+    private final HoaDonService hoaDonService;
 
-    public KhachController(HopDongService hopDongService, YeuCauService yeuCauService) {
+    public KhachController(HopDongService hopDongService, YeuCauService yeuCauService, HoaDonService hoaDonService) {
         this.hopDongService = hopDongService;
         this.yeuCauService = yeuCauService;
+        this.hoaDonService = hoaDonService;
     }
 
     @GetMapping("/hop-dong")
@@ -52,4 +58,10 @@ public class KhachController {
     public YeuCauDtos.YeuCau guiYeuCau(@Valid @RequestBody YeuCauDtos.GuiCuDan body) {
         return yeuCauService.guiCuDan(body);
     }
+
+    @GetMapping("/hoa-don")
+    public List<HoaDonDtos.HoaDon> hoaDonCuaToi() { return hoaDonService.cuaCuDan(); }
+
+    @GetMapping("/hoa-don/{id}")
+    public HoaDonDtos.HoaDon chiTietHoaDon(@PathVariable Long id) { return hoaDonService.chiTietCuDan(id); }
 }
