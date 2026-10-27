@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { AuthApi } from '../api/services'
-import { thongBaoLoi } from '../api/client'
-import { useToast } from '../context/ToastContext'
-import { PageHead } from '../components/ui'
-import { Icon } from '../components/icons'
+import { AuthApi } from '../../api/services'
+import { thongBaoLoi } from '../../api/client'
+import { useToast } from '../../context/ToastContext'
+import { PageHead } from '../../components/ui'
+import { Icon } from '../../components/icons'
 
 export default function DoiMatKhau() {
   const toast = useToast()

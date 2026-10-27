@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { KhachThueApi } from '../api/services'
-import { thongBaoLoi } from '../api/client'
-import { Actions, Badge, Empty, Field, Modal, PageHead, Pagination } from '../components/ui'
-import { useToast } from '../context/ToastContext'
+import { KhachThueApi } from '../../api/services'
+import { thongBaoLoi } from '../../api/client'
+import { Actions, Badge, Empty, Field, Modal, PageHead, Pagination } from '../../components/ui'
+import { useToast } from '../../context/ToastContext'
 
 const TRONG = {
   hoTen: '', cccd: '', sdt: '', email: '', ngaySinh: '',

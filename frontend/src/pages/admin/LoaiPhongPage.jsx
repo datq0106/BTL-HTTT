@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
-import { LoaiPhongApi } from '../api/services'
-import { thongBaoLoi } from '../api/client'
-import { tien } from '../utils/format'
-import { Actions, Empty, Field, Modal, PageHead } from '../components/ui'
-import { useToast } from '../context/ToastContext'
-import { useAuth } from '../context/AuthContext'
+import { LoaiPhongApi } from '../../api/services'
+import { thongBaoLoi } from '../../api/client'
+import { tien } from '../../utils/format'
+import { Actions, Empty, Field, Modal, PageHead } from '../../components/ui'
+import { useToast } from '../../context/ToastContext'
+import { useAuth } from '../../context/AuthContext'
 
 const TRONG = { tenLoai: '', giaThue: '', dienTich: '', moTa: '' }
 

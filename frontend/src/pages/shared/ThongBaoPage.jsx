@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
-import { ThongBaoApi } from '../api/services'
-import { thongBaoLoi } from '../api/client'
-import { ngayGio } from '../utils/format'
-import { Empty, PageHead, Pagination } from '../components/ui'
-import { useToast } from '../context/ToastContext'
-import { useAuth } from '../context/AuthContext'
+import { ThongBaoApi } from '../../api/services'
+import { thongBaoLoi } from '../../api/client'
+import { ngayGio } from '../../utils/format'
+import { Empty, PageHead, Pagination } from '../../components/ui'
+import { useToast } from '../../context/ToastContext'
+import { useAuth } from '../../context/AuthContext'
 
 export default function ThongBaoPage() {
   const toast = useToast()

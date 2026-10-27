@@ -1,12 +1,12 @@
 ﻿import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { HopDongApi } from '../api/services'
-import { thongBaoLoi } from '../api/client'
-import { ngay, ngayGio, tien } from '../utils/format'
-import { Actions, Badge, Field, Modal, PageHead } from '../components/ui'
-import { Icon } from '../components/icons'
-import { useToast } from '../context/ToastContext'
-import { useAuth } from '../context/AuthContext'
+import { HopDongApi } from '../../api/services'
+import { thongBaoLoi } from '../../api/client'
+import { ngay, ngayGio, tien } from '../../utils/format'
+import { Actions, Badge, Field, Modal, PageHead } from '../../components/ui'
+import { Icon } from '../../components/icons'
+import { useToast } from '../../context/ToastContext'
+import { useAuth } from '../../context/AuthContext'
 
 export default function HopDongChiTiet() {
   const { id } = useParams()

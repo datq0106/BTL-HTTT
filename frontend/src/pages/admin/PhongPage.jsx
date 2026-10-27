@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { LoaiPhongApi, PhongApi } from '../api/services'
-import { thongBaoLoi } from '../api/client'
-import { tien } from '../utils/format'
-import { Actions, Badge, Empty, Field, Modal, PageHead, Pagination } from '../components/ui'
-import { useToast } from '../context/ToastContext'
-import { Icon } from '../components/icons'
+import { LoaiPhongApi, PhongApi } from '../../api/services'
+import { thongBaoLoi } from '../../api/client'
+import { tien } from '../../utils/format'
+import { Actions, Badge, Empty, Field, Modal, PageHead, Pagination } from '../../components/ui'
+import { useToast } from '../../context/ToastContext'
+import { Icon } from '../../components/icons'
 
 const TRONG_FORM = { maPhong: '', tang: 1, loaiPhongId: '', tienNghi: '', ghiChu: '' }
 

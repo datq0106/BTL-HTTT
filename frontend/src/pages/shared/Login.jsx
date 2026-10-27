@@ -1,8 +1,8 @@
 ﻿import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import { thongBaoLoi } from '../api/client'
-import { Icon } from '../components/icons'
+import { useAuth } from '../../context/AuthContext'
+import { thongBaoLoi } from '../../api/client'
+import { Icon } from '../../components/icons'
 
 const DESKS = [
   { ma: 'owner', ten: 'Chủ trọ', moTa: 'Owner desk · quỹ căn & tài khoản' },

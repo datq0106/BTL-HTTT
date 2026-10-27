@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { PhongApi } from '../api/services'
-import { thongBaoLoi } from '../api/client'
-import { tien } from '../utils/format'
-import { Badge, PageHead } from '../components/ui'
-import { useToast } from '../context/ToastContext'
+import { PhongApi } from '../../api/services'
+import { thongBaoLoi } from '../../api/client'
+import { tien } from '../../utils/format'
+import { Badge, PageHead } from '../../components/ui'
+import { useToast } from '../../context/ToastContext'
 
 const ANH = [
   '/properties/01.jpg',

@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { KhachThueApi } from '../api/services'
-import { api, thongBaoLoi } from '../api/client'
-import { ngay, ngayGio } from '../utils/format'
-import { Badge, PageHead } from '../components/ui'
-import { useToast } from '../context/ToastContext'
+import { KhachThueApi } from '../../api/services'
+import { api, thongBaoLoi } from '../../api/client'
+import { ngay, ngayGio } from '../../utils/format'
+import { Badge, PageHead } from '../../components/ui'
+import { useToast } from '../../context/ToastContext'
 
 export default function KhachThueChiTiet() {
   const { id } = useParams()
