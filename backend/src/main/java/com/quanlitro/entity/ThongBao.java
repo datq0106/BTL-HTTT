@@ -32,7 +32,7 @@ public class ThongBao {
     @Column(nullable = false, length = 20)
     private String loai = "chung";
 
-    @Column(name = "da_doc", nullable = false)
+    @Column(name = "da_doc")
     private LocalDateTime daDoc;
 
     @Column(name = "created_at", insertable = false, updatable = false)

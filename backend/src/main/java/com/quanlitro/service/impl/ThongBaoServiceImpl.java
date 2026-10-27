@@ -13,7 +13,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Service
@@ -30,7 +29,7 @@ public class ThongBaoServiceImpl implements ThongBaoService {
 
     @Override
     public boolean gui(TaiKhoan nguoiNhan, String loai, String tieuDe, String noiDung) {
-        LocalDateTime dauNgay = LocalDate.now().atStartOfDay();
+        LocalDateTime dauNgay = NgayUtils.homNay().atStartOfDay();
         if (thongBaoRepo.daCoThongBao(nguoiNhan.getId(), loai, tieuDe, dauNgay)) {
             return false;
         }

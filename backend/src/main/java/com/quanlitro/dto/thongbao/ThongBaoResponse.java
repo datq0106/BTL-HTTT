@@ -8,6 +8,6 @@ public record ThongBaoResponse(
         String noiDung,
         String loai,
         String nhanLoai,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        LocalDateTime daDoc,
+        LocalDateTime createdAt
 ) {}

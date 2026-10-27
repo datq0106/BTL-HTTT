@@ -23,6 +23,7 @@ export default function ThongBaoPage() {
     if (!chuaDoc) return
     try {
       await ThongBaoApi.daDoc(id)
+      window.dispatchEvent(new Event('thongbao_updated'))
       tai(trang)
     } catch (e) {
       toast.loi(thongBaoLoi(e))
@@ -32,6 +33,7 @@ export default function ThongBaoPage() {
   async function docHet() {
     try {
       await ThongBaoApi.daDocTatCa()
+      window.dispatchEvent(new Event('thongbao_updated'))
       toast.thanhCong('Đã đánh dấu tất cả đã đọc')
       tai(trang)
     } catch (e) {
@@ -52,8 +54,8 @@ export default function ThongBaoPage() {
         {!ds.noiDung?.length ? <Empty text="Chưa có thông báo." /> : (
           <div>
             {ds.noiDung.map((tb) => {
-              const chuaDoc = !tb.createdAt
-              const lucTao = tb.updatedAt
+              const chuaDoc = !tb.daDoc
+              const lucTao = tb.createdAt
               return (
                 <div key={tb.id} className={`notice ${chuaDoc ? 'unread' : ''}`} onClick={() => doc(tb.id, chuaDoc)}>
                   <span className="notice-dot" />
