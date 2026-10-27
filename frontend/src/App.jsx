@@ -24,6 +24,7 @@ import HoSoPage from './pages/portal/HoSoPage'
 import ConciergePage from './pages/portal/ConciergePage'
 import DichVuCuDanPage from './pages/portal/DichVuCuDanPage'
 import YeuCauPage from './pages/admin/YeuCauPage'
+import TinDangPage from './pages/admin/TinDangPage'
 import NotFoundPage from './pages/shared/NotFoundPage'
 import HomePage from './pages/site/HomePage'
 import ListingsPage from './pages/site/ListingsPage'
@@ -110,6 +111,7 @@ export default function App() {
                   <Route path="hop-dong/:id" element={<HopDongChiTiet />} />
                   <Route path="dich-vu" element={<DichVuPage />} />
                   <Route path="yeu-cau" element={<YeuCauPage />} />
+                  <Route path="tin-dang" element={<TinDangPage />} />
                 </Route>
                 <Route element={<RequireAdmin />}>
                   <Route path="tai-khoan" element={<TaiKhoanPage />} />

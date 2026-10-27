@@ -14,6 +14,8 @@ export function Badge({ nhom, ma }) {
     khoa: 'danger',
     thanh_ly: 'danger',
     chua_khai_bao: 'warn',
+    xuat_ban: 'ok',
+    an: 'danger',
   }
   return <span className={`badge badge--${map[ma] || 'muted'}`}>{nhan(nhom, ma)}</span>
 }

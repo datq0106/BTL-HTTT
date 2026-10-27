@@ -8,6 +8,7 @@ import { Icon } from './icons'
 const MENU_NHAN_VIEN = [
   { to: '/quan-ly', label: 'Tổng quan', end: true, icon: 'overview' },
   { to: '/quan-ly/phong', label: 'Phòng', icon: 'building' },
+  { to: '/quan-ly/tin-dang', label: 'Tin đăng', icon: 'map' },
   { to: '/quan-ly/loai-phong', label: 'Loại phòng', icon: 'layers' },
   { to: '/quan-ly/khach-thue', label: 'Khách thuê', icon: 'users' },
   { to: '/quan-ly/hop-dong', label: 'Hợp đồng', icon: 'file' },
@@ -26,6 +27,7 @@ const MENU_CU_DAN = [
 const TITLES = {
   '/quan-ly': ['Portfolio', 'Tổng quan vận hành'],
   '/quan-ly/phong': ['Inventory', 'Danh mục phòng'],
+  '/quan-ly/tin-dang': ['Listings', 'Tin đăng & danh mục'],
   '/quan-ly/loai-phong': ['Product', 'Loại phòng'],
   '/quan-ly/khach-thue': ['Residents', 'Khách thuê'],
   '/quan-ly/hop-dong': ['Leasing', 'Hợp đồng'],

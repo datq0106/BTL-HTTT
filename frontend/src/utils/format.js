@@ -60,6 +60,11 @@ export const NHAN = {
     theo_chi_so: 'Theo chỉ số',
     co_dinh: 'Cố định tháng',
   },
+  tinDang: {
+    nhap: 'Nháp',
+    xuat_ban: 'Đang xuất bản',
+    an: 'Đã ẩn',
+  },
   taiKhoan: {
     hoat_dong: 'Hoạt động',
     khoa: 'Đã khóa',
